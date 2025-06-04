@@ -1,11 +1,11 @@
 import { Image } from "expo-image";
-const { width } = Dimensions.get("window");
-import { useEffect, useRef } from "react";
-import { Animated, Dimensions, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import { useEffect, useRef } from "react";
+const { width } = Dimensions.get("window");
+import { Animated, Dimensions, StyleSheet } from "react-native";
 
-import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
 // import { getUserData } from "../../store/authStore";
 
 export default function FlashScreen() {
@@ -85,8 +85,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   illustrationImage: {
-    width: width * 0.75,
-    height: width * 0.75,
+    width: width * 0.5,
+    height: width * 0.5,
   },
   header: {
     alignItems: "center",
