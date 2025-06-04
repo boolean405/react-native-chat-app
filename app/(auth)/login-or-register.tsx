@@ -18,7 +18,7 @@ import {
   Platform,
 } from "react-native";
 
-export default function LoginScreen() {
+export default function LoginOrRegisterScreen() {
   const [email, setEmail] = useState("");
   // const [isLoading, setIsLoading] = useState(false);
   // const [error, setError] = useState(false);
