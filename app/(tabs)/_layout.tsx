@@ -1,43 +1,103 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
+import React from "react";
+import { Tabs } from "expo-router";
+import { Platform, Text } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import TabBarBackground from "@/components/ui/TabBarBackground";
+import { Colors } from "@/constants/Colors";
+import { useColorScheme } from "@/hooks/useColorScheme";
+import { HapticTab } from "@/components/HapticTab";
 
 export default function TabLayout() {
+  // Get current color scheme (light or dark)
   const colorScheme = useColorScheme();
+
+  // Get safe area insets for padding (e.g., bottom space on iPhone X)
+  const insets = useSafeAreaInsets();
+
+  // Custom label function that only shows label when tab is focused
+  const tabBarLabel =
+    (label: string) =>
+    ({ focused, color }: any) =>
+      focused ? <Text style={{ color }}>{label}</Text> : null;
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
+        headerShown: false, // Hide the default header
+        tabBarButton: HapticTab, // Custom tab button with haptics
+        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint, // Use theme color for active tab
+        tabBarBackground: TabBarBackground, // Custom background component for tab bar
         tabBarStyle: Platform.select({
           ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
+            position: "absolute", // Absolute positioning for iOS
           },
-          default: {},
+          default: {
+            paddingTop: 10,
+            paddingBottom: insets.bottom,
+            height: 60 + insets.bottom, // Adjust height for Android and safe area
+          },
         }),
-      }}>
+      }}
+    >
+      {/* Chat tab */}
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: "Chat",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="chatbubble-outline" size={size} color={color} />
+          ),
+          tabBarLabel: tabBarLabel("Chat"),
         }}
       />
+
+      {/* Discover tab */}
       <Tabs.Screen
-        name="explore"
+        name="discover"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: "Discover",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="play-outline" size={size} color={color} />
+          ),
+          tabBarLabel: tabBarLabel("Discover"),
+        }}
+      />
+
+      {/* Camera tab */}
+      <Tabs.Screen
+        name="camera"
+        options={{
+          title: "Camera",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="add-circle-outline" size={size} color={color} />
+          ),
+          tabBarLabel: tabBarLabel("Camera"),
+        }}
+      />
+
+      {/* Notification tab */}
+      <Tabs.Screen
+        name="notification"
+        options={{
+          title: "Notification",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="notifications-outline" size={size} color={color} />
+          ),
+          tabBarLabel: tabBarLabel("Notification"),
+        }}
+      />
+
+      {/* Menu tab */}
+      <Tabs.Screen
+        name="menu"
+        options={{
+          title: "Menu",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="menu-outline" size={size} color={color} />
+          ),
+          tabBarLabel: tabBarLabel("Menu"),
         }}
       />
     </Tabs>
