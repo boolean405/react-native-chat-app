@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
-import React, { useEffect, useState } from "react";
 import { Keyboard, useColorScheme } from "react-native";
+import React, { useEffect, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
@@ -17,42 +18,35 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { useRouter } from "expo-router";
 
-export default function LoginOrRegister() {
-  const [email, setEmail] = useState("");
+export default function RegisterPassword() {
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isInvalidPassword, setIsInvalidPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isInvalidEmail, setIsInvalidEmail] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
   const colorScheme = useColorScheme();
   const color = colorScheme === "dark" ? "white" : "black";
-
   const router = useRouter();
 
+  const { email } = useLocalSearchParams();
+
   useEffect(() => {
-    validateEmail(email) ? setIsInvalidEmail(false) : setIsInvalidEmail(true);
-  }, [email]);
+    password.length < 8
+      ? setIsInvalidPassword(true)
+      : setIsInvalidPassword(false);
+  }, [password]);
 
-  // Simple email validation regex
-  const validateEmail = (email: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
-
-  const handleContinue = () => {
+  const handleRegister = () => {
     Keyboard.dismiss();
     setIsLoading(true);
     try {
-      const existEmail = "boolean405@gmail.com";
-      if (email === existEmail)
-        router.push({
-          pathname: "/(auth)/login-password",
-          params: { email },
-        });
-      else
-        router.push({
-          pathname: "/(auth)/register-password",
-          params: { email },
-        });
+      router.push({
+        pathname: "/(auth)/verify-email",
+        params: { email, password },
+      });
     } catch (error) {
       console.error("Verification failed", error);
     } finally {
@@ -70,52 +64,51 @@ export default function LoginOrRegister() {
         keyboardShouldPersistTaps="handled"
       >
         <ThemedView style={styles.container}>
-          <Image
-            style={styles.logoImage}
-            source={require("@/assets/images/logo.png")}
-          />
-          <ThemedText type="title">K Khay</ThemedText>
-          <ThemedText type="subtitle">Explore the World</ThemedText>
-          <ThemedText style={styles.titleText}>
-            Enter your email address to login or register
-          </ThemedText>
+          <ThemedText type="subtitle">Register a new account</ThemedText>
+          <ThemedText style={styles.titleText}>Create password</ThemedText>
 
           {/* Input container */}
           <View style={[styles.inputContainer, { borderColor: color }]}>
-            <Ionicons name="mail-outline" size={24} style={[{ color }]} />
+            <Ionicons name="lock-closed-outline" size={24} style={{ color }} />
             <TextInput
               style={[styles.textInput, { color }]}
-              placeholder="Email"
-              keyboardType="email-address"
-              textContentType="emailAddress"
-              autoComplete="email"
+              placeholder="Password"
+              autoComplete="password-new"
               placeholderTextColor="gray"
-              value={email}
+              value={password}
               autoCapitalize="none"
+              secureTextEntry={!showPassword}
+              autoCorrect={false}
               editable={!isLoading}
-              onSubmitEditing={handleContinue}
+              onSubmitEditing={handleRegister}
               onChangeText={(text) => {
-                // Remove spaces and convert to lowercase
-                const sanitized = text.replace(/\s/g, "").toLowerCase();
-                setEmail(sanitized);
+                setIsError(false);
+                setIsLoading(false);
+                const sanitized = text.replace(/\s/g, "");
+                setPassword(sanitized);
               }}
             />
+
+            {/* Right show password icon */}
+            <Ionicons
+              style={{ color }}
+              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              size={24}
+              onPress={() => setShowPassword(!showPassword)}
+            />
           </View>
+          {isError && (
+            <ThemedText style={{ color: "red" }}>{errorMessage}</ThemedText>
+          )}
           <ThemedButton
             style={[
               styles.button,
-              isInvalidEmail && { opacity: 0.5 }, // dim button when disabled
+              (isInvalidPassword || isLoading || isError) && { opacity: 0.5 }, // dim button when disabled
             ]}
-            title={isLoading ? "Processing" : "Continue"}
-            disabled={isInvalidEmail || isLoading}
-            onPress={handleContinue}
+            title={isLoading ? "Processing" : "Register"}
+            onPress={handleRegister}
+            disabled={isInvalidPassword || isLoading || isError}
           />
-          <ThemedText style={{ fontWeight: "200" }}>
-            By clicking continue, you agree to our
-          </ThemedText>
-          <ThemedText style={{ fontWeight: "400" }}>
-            Terms of Service and Privacy Policy
-          </ThemedText>
         </ThemedView>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -148,6 +141,7 @@ const styles = StyleSheet.create({
     width: "80%",
     paddingHorizontal: 10,
     paddingVertical: 2,
+    marginBottom: 10,
   },
   textInput: {
     flex: 1,
@@ -155,6 +149,6 @@ const styles = StyleSheet.create({
   },
   button: {
     width: "80%",
-    marginVertical: 20,
+    marginTop: 10,
   },
 });

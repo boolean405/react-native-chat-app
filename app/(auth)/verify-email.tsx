@@ -1,8 +1,7 @@
-import { useRouter } from "expo-router";
 import { useColorScheme } from "react-native";
 import React, { useRef, useState, useEffect } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
-  View,
   TextInput,
   StyleSheet,
   ScrollView,
@@ -12,20 +11,21 @@ import {
 
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedButton } from "@/components/ThemedButton";
 
 export default function VerifyEmailScreen() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(10);
   const [canResend, setCanResend] = useState(false);
-  const [isInvalidCode, setIsInvalidCode] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const router = useRouter();
   const colorScheme = useColorScheme();
   const color = colorScheme === "dark" ? "white" : "black";
-
   const inputs = useRef<Array<TextInput | null>>([]);
+
+  const { email, password } = useLocalSearchParams();
 
   useEffect(() => {
     let timer: any;
@@ -39,65 +39,41 @@ export default function VerifyEmailScreen() {
     return () => clearTimeout(timer);
   }, [resendTimer]);
 
-  const changeRoute = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      // APi here
-      // router.replace("/(auth)");
-      setIsLoading(false);
-    }, 1000);
-
-    // for real api
-    //    setIsLoading(true);
-    // try {
-    //   const response = await verifyCodeAPI(verificationCode);
-    //   if (response.success) {
-    //     router.replace("/(auth)");
-    //   } else {
-    //     setIsInvalidCode(true);
-    //   }
-    // } catch (error) {
-    //   console.error("Verification failed", error);
-    //   setIsInvalidCode(true);
-    // } finally {
-    //   setIsLoading(false);
-    // }
-  };
-
   const handleResend = () => {
-    console.log("Code resent");
     setResendTimer(60);
     setCanResend(false);
-    // Optional: trigger resend API logic here
+    // API logic here
   };
 
-  const handleChange = (text: string, index: number) => {
+  const handleOnChange = (text: string, index: number) => {
     // Always clear error when input changes
-    if (isInvalidCode) setIsInvalidCode(false);
+    if (isError) setIsError(false);
 
     if (/^\d$/.test(text) || text === "") {
       const newCode = [...code];
       newCode[index] = text;
       setCode(newCode);
-
       if (text && index < 5) {
         inputs.current[index + 1]?.focus();
       }
-
       const allFilled = newCode.every((digit) => digit !== "");
       if (allFilled) {
-        const verificationCode = newCode.join("");
-        console.log("Verification Code:", verificationCode);
-        changeRoute();
-      }
-    }
-  };
+        const code = newCode.join("");
 
-  const handleContinue = () => {
-    if (!code.includes("")) {
-      const verificationCode = code.join("");
-      console.log("Verification Code:", verificationCode);
-      changeRoute();
+        // api code here
+        setIsLoading(true);
+        setTimeout(() => {
+          const dbCode = "123456";
+          if (code !== dbCode) {
+            setIsError(true);
+            setErrorMessage("Incorrect or expired verification code");
+            setIsLoading(false);
+            return;
+          }
+          router.replace("/(tabs)");
+          setIsLoading(false);
+        }, 1000);
+      }
     }
   };
 
@@ -112,7 +88,10 @@ export default function VerifyEmailScreen() {
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+      >
         <ThemedView style={styles.container}>
           <ThemedText type="subtitle">Verify your email</ThemedText>
           <ThemedText style={styles.titleText}>
@@ -129,32 +108,27 @@ export default function VerifyEmailScreen() {
                 style={[
                   styles.codeInput,
                   { color },
-                  isInvalidCode && styles.codeInputError,
+                  isError && styles.codeInputError,
                 ]}
+                editable={!isLoading}
+                autoFocus={index === 0}
                 keyboardType="number-pad"
                 maxLength={1}
                 value={digit}
-                onChangeText={(text) => handleChange(text, index)}
+                onChangeText={(text) => handleOnChange(text, index)}
                 onKeyPress={(e) => handleKeyPress(e, index)}
               />
             ))}
           </ThemedView>
-
-          <ThemedButton
-            disabled={code.includes("") || isLoading}
-            title={isLoading ? "Verifying" : "Continue"}
-            style={[
-              styles.button,
-              (code.includes("") || isLoading) && { backgroundColor: "gray" },
-            ]}
-            onPress={handleContinue}
-          />
+          {isError && (
+            <ThemedText style={{ color: "red" }}>{errorMessage}</ThemedText>
+          )}
 
           <ThemedView style={styles.resendContainer}>
             {canResend ? (
               <ThemedText onPress={handleResend}>Resend</ThemedText>
             ) : (
-              <ThemedText style={{ color: "gray" }}>
+              <ThemedText style={{ opacity: 0.5 }}>
                 Resend available in {resendTimer}s
               </ThemedText>
             )}
@@ -183,7 +157,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     width: "80%",
-    marginBottom: 20,
+    marginBottom: 10,
   },
   codeInput: {
     borderWidth: 1,
@@ -194,12 +168,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 18,
   },
-  button: {
-    width: "80%",
-    marginVertical: 20,
-  },
   resendContainer: {
     alignItems: "center",
+    marginTop: 10,
   },
   codeInputError: {
     borderColor: "red",

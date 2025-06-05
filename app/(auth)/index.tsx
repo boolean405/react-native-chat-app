@@ -1,18 +1,20 @@
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
-const { width } = Dimensions.get("window");
 import { Animated, Dimensions, StyleSheet } from "react-native";
 
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 // import { getUserData } from "../../store/authStore";
 
+const { width } = Dimensions.get("window");
+
 export default function FlashScreen() {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const router = useRouter();
 
   useEffect(() => {
+    // Start pulsing animation on logo
     const pulse = Animated.loop(
       Animated.sequence([
         Animated.timing(scaleAnim, {
@@ -30,32 +32,28 @@ export default function FlashScreen() {
 
     pulse.start();
 
+    // TODO: Enable auth check to auto-navigate
     const checkAuth = async () => {
       // const user = await getUserData();
-      // // Optional: wait for animation or splash effect
       // setTimeout(() => {
       //   if (user) {
-      //     router.replace("/(tabs)"); // go to home screen
+      //     router.replace("/(tabs)"); // Navigate to main app
       //   } else {
-      //     router.replace("/(auth)/signin"); // go to sign-in screen
+      //     router.replace("/(auth)/signin"); // Navigate to Sign In
       //   }
-      // }, 1000); // adjust timeout as needed
+      // }, 1000);
     };
 
     checkAuth();
 
-    return () => pulse.stop(); // Clean up
+    return () => pulse.stop(); // Clean up animation loop
   }, []);
 
   return (
     <ThemedView style={styles.container}>
+      {/* Animated logo + header */}
       <Animated.View
-        style={[
-          styles.topIllustration,
-          {
-            transform: [{ scale: scaleAnim }],
-          },
-        ]}
+        style={[styles.topIllustration, { transform: [{ scale: scaleAnim }] }]}
       >
         <Image
           source={require("@/assets/images/logo.png")}

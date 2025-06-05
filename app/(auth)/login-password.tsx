@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
-import React, { useState } from "react";
-import { useColorScheme } from "react-native";
+import { Keyboard, useColorScheme } from "react-native";
+import React, { useEffect, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
@@ -18,24 +19,56 @@ import {
   Platform,
 } from "react-native";
 
-export default function CreatePasswordScreen() {
+export default function LoginPassword() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isInvalidPassword, setIsInvalidPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(false);
+  const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
   const colorScheme = useColorScheme();
+  const router = useRouter();
   const color = colorScheme === "dark" ? "white" : "black";
+
+  const { email } = useLocalSearchParams();
+
+  useEffect(() => {
+    password.length < 8
+      ? setIsInvalidPassword(true)
+      : setIsInvalidPassword(false);
+  }, [password]);
+
+  const handleLogin = () => {
+    Keyboard.dismiss();
+    setIsLoading(true);
+    setTimeout(() => {
+      const dbPassword = "12345678";
+      if (password !== dbPassword) {
+        setIsError(true);
+        setErrorMessage("Incorrect password");
+        setIsLoading(false);
+        return;
+      }
+      router.replace("/(tabs)");
+      setIsLoading(false);
+    }, 1000);
+  };
 
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+      >
         <ThemedView style={styles.container}>
-          <ThemedText type="subtitle">Registering a new account</ThemedText>
-          <ThemedText style={styles.emailText}>Create password</ThemedText>
+          <ThemedText type="subtitle">Login to your account</ThemedText>
+          <ThemedText style={styles.titleText}>
+            Enter your login password
+          </ThemedText>
 
           {/* Input container */}
           <View style={[styles.inputContainer, { borderColor: color }]}>
@@ -49,8 +82,11 @@ export default function CreatePasswordScreen() {
               autoCapitalize="none"
               secureTextEntry={!showPassword}
               autoCorrect={false}
+              editable={!isLoading}
+              onSubmitEditing={handleLogin}
               onChangeText={(text) => {
-                // Remove spaces and convert to lowercase
+                setIsError(false);
+                setIsLoading(false);
                 const sanitized = text.replace(/\s/g, "");
                 setPassword(sanitized);
               }}
@@ -64,7 +100,18 @@ export default function CreatePasswordScreen() {
               onPress={() => setShowPassword(!showPassword)}
             />
           </View>
-          <ThemedButton style={styles.button} title="Continue" />
+          {isError && (
+            <ThemedText style={{ color: "red" }}>{errorMessage}</ThemedText>
+          )}
+          <ThemedButton
+            style={[
+              styles.button,
+              (isInvalidPassword || isLoading || isError) && { opacity: 0.5 }, // dim button when disabled
+            ]}
+            title={isLoading ? "Processing" : "Login"}
+            onPress={handleLogin}
+            disabled={isInvalidPassword || isLoading || isError}
+          />
         </ThemedView>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -85,7 +132,7 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
   },
-  emailText: {
+  titleText: {
     marginTop: 60,
     marginBottom: 20,
   },
@@ -97,6 +144,7 @@ const styles = StyleSheet.create({
     width: "80%",
     paddingHorizontal: 10,
     paddingVertical: 2,
+    marginBottom: 10,
   },
   textInput: {
     flex: 1,
@@ -104,6 +152,6 @@ const styles = StyleSheet.create({
   },
   button: {
     width: "80%",
-    marginVertical: 20,
+    marginTop: 10,
   },
 });

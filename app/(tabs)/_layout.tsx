@@ -4,7 +4,6 @@ import { Platform, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { HapticTab } from "@/components/HapticTab";
@@ -28,7 +27,6 @@ export default function TabLayout() {
         headerShown: false, // Hide the default header
         tabBarButton: HapticTab, // Custom tab button with haptics
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint, // Use theme color for active tab
-        tabBarBackground: TabBarBackground, // Custom background component for tab bar
         tabBarStyle: Platform.select({
           ios: {
             position: "absolute", // Absolute positioning for iOS
