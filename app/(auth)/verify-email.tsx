@@ -47,7 +47,7 @@ export default function VerifyEmailScreen() {
 
   const handleOnChange = (text: string, index: number) => {
     // Always clear error when input changes
-    if (isError) setIsError(false);
+    setIsError(false);
 
     if (/^\d$/.test(text) || text === "") {
       const newCode = [...code];
@@ -63,14 +63,21 @@ export default function VerifyEmailScreen() {
         // api code here
         setIsLoading(true);
         setTimeout(() => {
-          const dbCode = "123456";
+          const dbCode = "111111";
           if (code !== dbCode) {
             setIsError(true);
             setErrorMessage("Incorrect or expired verification code");
             setIsLoading(false);
             return;
           }
-          router.replace("/(tabs)");
+          if (!password) {
+            router.replace({
+              pathname: "/(auth)/reset-password",
+              params: { email },
+            });
+          } else {
+            router.replace("/(tabs)");
+          }
           setIsLoading(false);
         }, 1000);
       }

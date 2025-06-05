@@ -19,7 +19,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 
-export default function LoginOrRegister() {
+export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isInvalidEmail, setIsInvalidEmail] = useState(false);
@@ -48,7 +48,7 @@ export default function LoginOrRegister() {
       const existEmail = "boolean405@gmail.com";
       if (email === existEmail) {
         router.push({
-          pathname: "/(auth)/login-password",
+          pathname: "/(auth)/verify-email",
           params: { email },
         });
       } else {
@@ -75,14 +75,9 @@ export default function LoginOrRegister() {
         keyboardShouldPersistTaps="handled"
       >
         <ThemedView style={styles.container}>
-          <Image
-            style={styles.logoImage}
-            source={require("@/assets/images/logo.png")}
-          />
-          <ThemedText type="title">K Khay</ThemedText>
-          <ThemedText type="subtitle">Explore the World</ThemedText>
+          <ThemedText type="subtitle">Reset Password</ThemedText>
           <ThemedText style={styles.titleText}>
-            Enter your email address to login or register
+            Enter your email address to reset a new password
           </ThemedText>
 
           {/* Input container */}
@@ -106,11 +101,11 @@ export default function LoginOrRegister() {
               }}
             />
           </View>
-
           {isError && (
             <ThemedText style={{ color: "red" }}>{errorMessage}</ThemedText>
           )}
 
+          {/* Continue button */}
           <ThemedButton
             style={[
               styles.button,
@@ -120,12 +115,6 @@ export default function LoginOrRegister() {
             disabled={isInvalidEmail || isLoading || isError}
             onPress={handleContinue}
           />
-          <ThemedText style={{ fontWeight: "200" }}>
-            By clicking continue, you agree to our
-          </ThemedText>
-          <ThemedText style={{ fontWeight: "400" }}>
-            Terms of Service and Privacy Policy
-          </ThemedText>
         </ThemedView>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -158,6 +147,7 @@ const styles = StyleSheet.create({
     width: "80%",
     paddingHorizontal: 10,
     paddingVertical: 2,
+    marginBottom: 10,
   },
   textInput: {
     flex: 1,
@@ -165,6 +155,6 @@ const styles = StyleSheet.create({
   },
   button: {
     width: "80%",
-    marginVertical: 20,
+    marginVertical: 10,
   },
 });

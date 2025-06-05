@@ -86,7 +86,6 @@ export default function LoginPassword() {
               onSubmitEditing={handleLogin}
               onChangeText={(text) => {
                 setIsError(false);
-                setIsLoading(false);
                 const sanitized = text.replace(/\s/g, "");
                 setPassword(sanitized);
               }}

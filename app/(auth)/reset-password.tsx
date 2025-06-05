@@ -19,7 +19,7 @@ import {
   Platform,
 } from "react-native";
 
-export default function RegisterPassword() {
+export default function ResetPassword() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -53,10 +53,7 @@ export default function RegisterPassword() {
 
     setIsLoading(true);
     try {
-      router.push({
-        pathname: "/(auth)/verify-email",
-        params: { email, password },
-      });
+      router.replace("/(tabs)");
     } catch (error: any) {
       setIsError(true);
       setErrorMessage(error.message);
@@ -75,8 +72,10 @@ export default function RegisterPassword() {
         keyboardShouldPersistTaps="handled"
       >
         <ThemedView style={styles.container}>
-          <ThemedText type="subtitle">Register a new account</ThemedText>
-          <ThemedText style={styles.titleText}>Create password</ThemedText>
+          <ThemedText type="subtitle">Reset password</ThemedText>
+          <ThemedText style={styles.titleText}>
+            Create a new password
+          </ThemedText>
 
           <ThemedView style={styles.inputGroupContainer}>
             {/* Input container */}
@@ -164,7 +163,7 @@ export default function RegisterPassword() {
               styles.button,
               (isInvalidPassword || isLoading || isError) && { opacity: 0.5 }, // dim button when disabled
             ]}
-            title={isLoading ? "Processing" : "Register"}
+            title={isLoading ? "Processing" : "Reset password"}
             onPress={handleRegister}
             disabled={isInvalidPassword || isLoading || isError}
           />
