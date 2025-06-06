@@ -1,22 +1,23 @@
-import { useColorScheme } from "react-native";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
-  TextInput,
-  StyleSheet,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  useColorScheme,
 } from "react-native";
 
-import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
-import { saveUserData } from "@/store/authStore";
+import { ThemedView } from "@/components/ThemedView";
+import { saveUserData } from "@/stores/auth-store";
 
 export default function VerifyEmailScreen() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
+  const [isVerified, setIsVerified] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [resendTimer, setResendTimer] = useState(10);
+  const [resendTimer, setResendTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -26,7 +27,7 @@ export default function VerifyEmailScreen() {
   const color = colorScheme === "dark" ? "white" : "black";
   const inputs = useRef<Array<TextInput | null>>([]);
 
-  const { email, password } = useLocalSearchParams();
+  const { name, username, email, password } = useLocalSearchParams();
 
   useEffect(() => {
     let timer: any;
@@ -41,6 +42,7 @@ export default function VerifyEmailScreen() {
   }, [resendTimer]);
 
   const handleResend = () => {
+    if (!canResend) return;
     setResendTimer(60);
     setCanResend(false);
     // API logic here
@@ -63,25 +65,35 @@ export default function VerifyEmailScreen() {
 
         // api code here
         setIsLoading(true);
-        setTimeout(async () => {
-          const dbCode = "111111";
-          if (code !== dbCode) {
+        setTimeout(() => {
+          const emailCode = "111111";
+          if (code !== emailCode) {
             setIsError(true);
             setErrorMessage("Incorrect or expired verification code");
             setIsLoading(false);
             return;
           }
-          if (!password) {
-            router.replace({
-              pathname: "/(auth)/reset-password",
-              params: { email },
-            });
-          } else {
-            const accessToken = "123456";
-            const newUser = { email, password, accessToken };
-            await saveUserData(newUser, accessToken);
-            router.replace("/(tabs)");
-          }
+
+          setIsVerified(true);
+          setTimeout(async () => {
+            if (!password) {
+              router.replace({
+                pathname: "/(auth)/reset-password",
+                params: { email },
+              });
+            } else {
+              const newUser = {
+                name,
+                username,
+                email,
+                password,
+                accessToken: `1234/${email}/1234`,
+              };
+              await saveUserData(newUser, newUser.accessToken);
+              router.replace("/(tabs)");
+            }
+          }, 1000);
+
           setIsLoading(false);
         }, 1000);
       }
@@ -119,15 +131,16 @@ export default function VerifyEmailScreen() {
                 style={[
                   styles.codeInput,
                   { color },
-                  isError && styles.codeInputError,
+                  isError && { borderColor: "red" },
+                  isVerified && { borderColor: "green" },
                 ]}
                 editable={!isLoading}
-                autoFocus={index === 0}
+                autoFocus={index === 0 && code.every((d) => d === "")}
                 keyboardType="number-pad"
                 maxLength={1}
                 value={digit}
-                onChangeText={(text) => handleOnChange(text, index)}
                 onKeyPress={(e) => handleKeyPress(e, index)}
+                onChangeText={(text) => handleOnChange(text, index)}
               />
             ))}
           </ThemedView>
@@ -182,8 +195,5 @@ const styles = StyleSheet.create({
   resendContainer: {
     alignItems: "center",
     marginTop: 10,
-  },
-  codeInputError: {
-    borderColor: "red",
   },
 });

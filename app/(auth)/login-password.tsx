@@ -1,22 +1,20 @@
-import { Image } from "expo-image";
-import { Keyboard, useColorScheme } from "react-native";
-import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 
-import { Ionicons } from "@expo/vector-icons";
-import { ThemedView } from "@/components/ThemedView";
-import { ThemedText } from "@/components/ThemedText";
 import { ThemedButton } from "@/components/ThemedButton";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { saveUserData } from "@/stores/auth-store";
+import { Ionicons } from "@expo/vector-icons";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  Button,
-  TouchableOpacity,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+  Keyboard,
+  useColorScheme,
 } from "react-native";
 
 export default function LoginPassword() {
@@ -39,17 +37,31 @@ export default function LoginPassword() {
       : setIsInvalidPassword(false);
   }, [password]);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     Keyboard.dismiss();
     setIsLoading(true);
-    setTimeout(() => {
-      const dbPassword = "12345678";
-      if (password !== dbPassword) {
+    setTimeout(async () => {
+      const serverUser = {
+        name: "Boolean",
+        username: "boolean405",
+        email: "boolean405@gmail.com",
+        password: "11111111",
+      };
+      if (password !== serverUser.password) {
         setIsError(true);
         setErrorMessage("Incorrect password");
         setIsLoading(false);
         return;
       }
+
+      const user = {
+        name: serverUser.name,
+        username: serverUser.username,
+        email: serverUser.email,
+        password: serverUser.password,
+        accessToken: `1234/${email}/1234`,
+      };
+      await saveUserData(user, user.accessToken);
       router.replace("/(tabs)");
       setIsLoading(false);
     }, 1000);
@@ -71,7 +83,13 @@ export default function LoginPassword() {
           </ThemedText>
 
           {/* Input container */}
-          <View style={[styles.inputContainer, { borderColor: color }]}>
+          <View
+            style={[
+              styles.inputContainer,
+              { borderColor: color },
+              isError && { borderColor: "red" },
+            ]}
+          >
             <Ionicons name="lock-closed-outline" size={24} style={{ color }} />
             <TextInput
               style={[styles.textInput, { color }]}
@@ -83,7 +101,9 @@ export default function LoginPassword() {
               secureTextEntry={!showPassword}
               autoCorrect={false}
               editable={!isLoading}
-              onSubmitEditing={handleLogin}
+              onSubmitEditing={() =>
+                !isInvalidPassword && !isError && handleLogin()
+              }
               onChangeText={(text) => {
                 setIsError(false);
                 const sanitized = text.replace(/\s/g, "");
@@ -96,7 +116,7 @@ export default function LoginPassword() {
               style={{ color }}
               name={showPassword ? "eye-off-outline" : "eye-outline"}
               size={24}
-              onPress={() => setShowPassword(!showPassword)}
+              onPress={() => !isLoading && setShowPassword(!showPassword)}
             />
           </View>
           {isError && (
@@ -111,6 +131,19 @@ export default function LoginPassword() {
             onPress={handleLogin}
             disabled={isInvalidPassword || isLoading || isError}
           />
+          <ThemedView style={styles.forgotPasswordContainer}>
+            <ThemedText
+              type="defaultItalic"
+              onPress={() => {
+                router.push({
+                  pathname: "/(auth)/verify-email",
+                  params: { email },
+                });
+              }}
+            >
+              Forgot password?
+            </ThemedText>
+          </ThemedView>
         </ThemedView>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -142,15 +175,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     width: "80%",
     paddingHorizontal: 10,
-    paddingVertical: 2,
     marginBottom: 10,
   },
   textInput: {
     flex: 1,
     paddingHorizontal: 10,
+    height: 50,
   },
   button: {
     width: "80%",
     marginTop: 10,
+  },
+  forgotPasswordContainer: {
+    width: "80%",
+    marginTop: 10,
+    alignItems: "flex-end",
+    paddingRight: 20,
   },
 });

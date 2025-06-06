@@ -1,25 +1,21 @@
-import { Image } from "expo-image";
-import { Keyboard, useColorScheme } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-
-import { Ionicons } from "@expo/vector-icons";
-import { ThemedView } from "@/components/ThemedView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedButton } from "@/components/ThemedButton";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  Button,
-  TouchableOpacity,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  Keyboard,
+  useColorScheme,
 } from "react-native";
 
-export default function RegisterPassword() {
+import { Ionicons } from "@expo/vector-icons";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { ThemedButton } from "@/components/ThemedButton";
+
+export default function CreatePassword() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -33,7 +29,7 @@ export default function RegisterPassword() {
   const color = colorScheme === "dark" ? "white" : "black";
   const router = useRouter();
 
-  const { email } = useLocalSearchParams();
+  const { name, username, email } = useLocalSearchParams();
 
   useEffect(() => {
     password.length < 8 || confirmPassword.length < 8
@@ -44,7 +40,6 @@ export default function RegisterPassword() {
   const handleRegister = () => {
     Keyboard.dismiss();
 
-    // Check for password mismatch
     if (password !== confirmPassword) {
       setIsError(true);
       setErrorMessage("Passwords do not match!");
@@ -52,17 +47,19 @@ export default function RegisterPassword() {
     }
 
     setIsLoading(true);
-    try {
-      router.push({
-        pathname: "/(auth)/verify-email",
-        params: { email, password },
-      });
-    } catch (error: any) {
-      setIsError(true);
-      setErrorMessage(error.message);
-    } finally {
-      setIsLoading(false);
-    }
+    setTimeout(() => {
+      try {
+        router.push({
+          pathname: "/(auth)/verify-email",
+          params: { name, username, email, password },
+        });
+      } catch (error: any) {
+        setIsError(true);
+        setErrorMessage(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }, 1000);
   };
 
   return (
@@ -104,7 +101,10 @@ export default function RegisterPassword() {
                 editable={!isLoading}
                 onChangeText={(text) => {
                   setIsError(false);
-                  const sanitized = text.replace(/\s/g, "");
+                  const sanitized = text.replace(
+                    /[^A-Za-z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/g,
+                    ""
+                  );
                   setPassword(sanitized);
                 }}
               />
@@ -139,10 +139,13 @@ export default function RegisterPassword() {
                 secureTextEntry={!showConfirmPassword}
                 autoCorrect={false}
                 editable={!isLoading}
-                onSubmitEditing={handleRegister}
+                onSubmitEditing={() => !isInvalidPassword && handleRegister()}
                 onChangeText={(text) => {
                   setIsError(false);
-                  const sanitized = text.replace(/\s/g, "");
+                  const sanitized = text.replace(
+                    /[^A-Za-z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/g,
+                    ""
+                  );
                   setConfirmPassword(sanitized);
                 }}
               />
@@ -164,7 +167,7 @@ export default function RegisterPassword() {
               styles.button,
               (isInvalidPassword || isLoading || isError) && { opacity: 0.5 }, // dim button when disabled
             ]}
-            title={isLoading ? "Processing" : "Register"}
+            title={isLoading ? "Processing" : "Continue"}
             onPress={handleRegister}
             disabled={isInvalidPassword || isLoading || isError}
           />
@@ -202,12 +205,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     width: "80%",
     paddingHorizontal: 10,
-    paddingVertical: 2,
     marginVertical: 10,
   },
   textInput: {
     flex: 1,
     paddingHorizontal: 10,
+    height: 50,
   },
   button: {
     width: "80%",

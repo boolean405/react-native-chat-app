@@ -1,24 +1,21 @@
 import { Image } from "expo-image";
+import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Keyboard, useColorScheme } from "react-native";
-
-import { Ionicons } from "@expo/vector-icons";
-import { ThemedView } from "@/components/ThemedView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedButton } from "@/components/ThemedButton";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  Button,
-  TouchableOpacity,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+  Keyboard,
+  useColorScheme,
 } from "react-native";
-import { useRouter } from "expo-router";
-import { getUserData } from "@/store/authStore";
+
+import { ThemedButton } from "@/components/ThemedButton";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function LoginOrRegister() {
   const [email, setEmail] = useState("");
@@ -33,28 +30,27 @@ export default function LoginOrRegister() {
   const router = useRouter();
 
   useEffect(() => {
+    const validateEmail = (email: string) => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    };
+
     validateEmail(email) ? setIsInvalidEmail(false) : setIsInvalidEmail(true);
   }, [email]);
-
-  // Simple email validation regex
-  const validateEmail = (email: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
 
   const handleContinue = async () => {
     Keyboard.dismiss();
     setIsLoading(true);
     try {
-      const user = await getUserData();
-      if (email === user?.email) {
+      const existUserEmail = "boolean405@gmail.com";
+      if (email === existUserEmail) {
         router.push({
           pathname: "/(auth)/login-password",
           params: { email },
         });
       } else {
         router.push({
-          pathname: "/(auth)/register-password",
+          pathname: "/(auth)/create-name",
           params: { email },
         });
       }
@@ -99,10 +95,14 @@ export default function LoginOrRegister() {
               value={email}
               autoCapitalize="none"
               editable={!isLoading}
-              onSubmitEditing={handleContinue}
+              onSubmitEditing={() =>
+                !isInvalidEmail && email.trim() && handleContinue()
+              }
               onChangeText={(text) => {
                 setIsError(false);
-                const sanitized = text.replace(/\s/g, "").toLowerCase();
+                const sanitized = text
+                  .replace(/[^a-zA-Z0-9@._-]/g, "")
+                  .toLowerCase();
                 setEmail(sanitized);
               }}
             />
@@ -158,11 +158,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     width: "80%",
     paddingHorizontal: 10,
-    paddingVertical: 2,
   },
   textInput: {
     flex: 1,
     paddingHorizontal: 10,
+    height: 50,
   },
   button: {
     width: "80%",

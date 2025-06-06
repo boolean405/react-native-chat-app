@@ -3,9 +3,9 @@ import { useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
 import { Animated, Dimensions, StyleSheet } from "react-native";
 
+import { getUserData } from "@/stores/auth-store";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { getUserData } from "@/store/authStore";
 
 const { width } = Dimensions.get("window");
 

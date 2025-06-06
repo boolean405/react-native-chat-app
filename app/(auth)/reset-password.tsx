@@ -1,23 +1,20 @@
-import { Image } from "expo-image";
-import { Keyboard, useColorScheme } from "react-native";
-import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-
-import { Ionicons } from "@expo/vector-icons";
-import { ThemedView } from "@/components/ThemedView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedButton } from "@/components/ThemedButton";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  Button,
-  TouchableOpacity,
-  ScrollView,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  useColorScheme,
 } from "react-native";
+
+import { ThemedButton } from "@/components/ThemedButton";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { saveUserData } from "@/stores/auth-store";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
@@ -41,7 +38,7 @@ export default function ResetPassword() {
       : setIsInvalidPassword(false);
   }, [password, confirmPassword]);
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     Keyboard.dismiss();
 
     // Check for password mismatch
@@ -53,6 +50,8 @@ export default function ResetPassword() {
 
     setIsLoading(true);
     try {
+      const user = { email, password, accessToken: `1234/${email}/1234` };
+      await saveUserData(user, user.accessToken);
       router.replace("/(tabs)");
     } catch (error: any) {
       setIsError(true);
@@ -113,7 +112,7 @@ export default function ResetPassword() {
                 style={{ color }}
                 name={showPassword ? "eye-off-outline" : "eye-outline"}
                 size={24}
-                onPress={() => setShowPassword(!showPassword)}
+                onPress={() => !isLoading && setShowPassword(!showPassword)}
               />
             </ThemedView>
             <ThemedView
@@ -138,7 +137,11 @@ export default function ResetPassword() {
                 secureTextEntry={!showConfirmPassword}
                 autoCorrect={false}
                 editable={!isLoading}
-                onSubmitEditing={handleRegister}
+                onSubmitEditing={() => {
+                  !isInvalidPassword &&
+                    password === confirmPassword &&
+                    handleRegister();
+                }}
                 onChangeText={(text) => {
                   setIsError(false);
                   const sanitized = text.replace(/\s/g, "");
@@ -151,7 +154,9 @@ export default function ResetPassword() {
                 style={{ color }}
                 name={showConfirmPassword ? "eye-off-outline" : "eye-outline"}
                 size={24}
-                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                onPress={() =>
+                  !isLoading && setShowConfirmPassword(!showConfirmPassword)
+                }
               />
             </ThemedView>
           </ThemedView>
@@ -201,12 +206,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     width: "80%",
     paddingHorizontal: 10,
-    paddingVertical: 2,
     marginVertical: 10,
   },
   textInput: {
     flex: 1,
     paddingHorizontal: 10,
+    height: 50,
   },
   button: {
     width: "80%",

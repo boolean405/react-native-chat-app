@@ -1,10 +1,11 @@
-import { ThemedButton } from "@/components/ThemedButton";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { clearUserData, getAccessToken, getUserData } from "@/store/authStore";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
+
+import { ThemedButton } from "@/components/ThemedButton";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { clearUserData, getUserData } from "@/stores/auth-store";
 
 export default function Chat() {
   const [user, setUser] = useState(Object);
@@ -25,7 +26,7 @@ export default function Chat() {
   const handleDeleteUser = async () => {
     await clearUserData();
     setUser(null);
-    router.replace("/(auth)/login-or-register");
+    router.replace("/(auth)");
   };
   return (
     <ThemedView
