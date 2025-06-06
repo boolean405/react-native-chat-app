@@ -18,6 +18,7 @@ import {
   Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { getUserData } from "@/store/authStore";
 
 export default function LoginOrRegister() {
   const [email, setEmail] = useState("");
@@ -41,12 +42,12 @@ export default function LoginOrRegister() {
     return regex.test(email);
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     Keyboard.dismiss();
     setIsLoading(true);
     try {
-      const existEmail = "boolean405@gmail.com";
-      if (email === existEmail) {
+      const user = await getUserData();
+      if (email === user?.email) {
         router.push({
           pathname: "/(auth)/login-password",
           params: { email },

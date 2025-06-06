@@ -11,6 +11,7 @@ import {
 
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
+import { saveUserData } from "@/store/authStore";
 
 export default function VerifyEmailScreen() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
@@ -62,7 +63,7 @@ export default function VerifyEmailScreen() {
 
         // api code here
         setIsLoading(true);
-        setTimeout(() => {
+        setTimeout(async () => {
           const dbCode = "111111";
           if (code !== dbCode) {
             setIsError(true);
@@ -76,6 +77,9 @@ export default function VerifyEmailScreen() {
               params: { email },
             });
           } else {
+            const accessToken = "123456";
+            const newUser = { email, password, accessToken };
+            await saveUserData(newUser, accessToken);
             router.replace("/(tabs)");
           }
           setIsLoading(false);

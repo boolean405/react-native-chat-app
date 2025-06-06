@@ -5,7 +5,7 @@ import { Animated, Dimensions, StyleSheet } from "react-native";
 
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-// import { getUserData } from "../../store/authStore";
+import { getUserData } from "@/store/authStore";
 
 const { width } = Dimensions.get("window");
 
@@ -34,14 +34,14 @@ export default function FlashScreen() {
 
     // TODO: Enable auth check to auto-navigate
     const checkAuth = async () => {
-      // const user = await getUserData();
-      // setTimeout(() => {
-      //   if (user) {
-      //     router.replace("/(tabs)"); // Navigate to main app
-      //   } else {
-      //     router.replace("/(auth)/signin"); // Navigate to Sign In
-      //   }
-      // }, 1000);
+      const user = await getUserData();
+      setTimeout(() => {
+        if (user) {
+          router.replace("/(tabs)"); // Navigate to main app
+        } else {
+          router.replace("/(auth)/login-or-register");
+        }
+      }, 1000);
     };
 
     checkAuth();
