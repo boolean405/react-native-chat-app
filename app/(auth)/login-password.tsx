@@ -15,6 +15,7 @@ import {
   View,
   Keyboard,
   useColorScheme,
+  TouchableOpacity,
 } from "react-native";
 
 export default function LoginPassword() {
@@ -132,8 +133,8 @@ export default function LoginPassword() {
             disabled={isInvalidPassword || isLoading || isError}
           />
           <ThemedView style={styles.forgotPasswordContainer}>
-            <ThemedText
-              type="defaultItalic"
+            <TouchableOpacity
+              disabled={isLoading}
               onPress={() => {
                 router.push({
                   pathname: "/(auth)/verify-email",
@@ -141,8 +142,8 @@ export default function LoginPassword() {
                 });
               }}
             >
-              Forgot password?
-            </ThemedText>
+              <ThemedText type="defaultItalic">Forgot password?</ThemedText>
+            </TouchableOpacity>
           </ThemedView>
         </ThemedView>
       </ScrollView>

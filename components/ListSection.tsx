@@ -1,5 +1,5 @@
 import React from "react";
-import { FlatList, StyleSheet } from "react-native";
+import { FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -8,6 +8,7 @@ interface ListItem {
   id: string;
   label: string;
   iconName: keyof typeof Ionicons.glyphMap;
+  onItemPress?: () => void;
 }
 
 interface Props {
@@ -16,6 +17,7 @@ interface Props {
   tintColor: string;
   textColor: string;
   separatorColor: string;
+  onItemPress?: (item: ListItem) => void;
 }
 
 export const ListSection: React.FC<Props> = ({
@@ -24,14 +26,23 @@ export const ListSection: React.FC<Props> = ({
   tintColor,
   textColor,
   separatorColor,
+  onItemPress,
 }) => {
+  const handleItemPress = (item: ListItem) => {
+    if (onItemPress) {
+      onItemPress(item);
+    }
+  };
+
   const renderItem = ({ item }: { item: ListItem }) => (
-    <ThemedView style={styles.listItem}>
-      <Ionicons name={item.iconName} size={24} color={tintColor} />
-      <ThemedText style={[styles.listLabel, { color: textColor }]}>
-        {item.label}
-      </ThemedText>
-    </ThemedView>
+    <TouchableOpacity onPress={() => handleItemPress(item)}>
+      <ThemedView style={styles.listItem}>
+        <Ionicons name={item.iconName} size={24} color={tintColor} />
+        <ThemedText style={[styles.listLabel, { color: textColor }]}>
+          {item.label}
+        </ThemedText>
+      </ThemedView>
+    </TouchableOpacity>
   );
 
   return (

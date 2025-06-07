@@ -6,6 +6,7 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
+  TouchableOpacity,
   useColorScheme,
 } from "react-native";
 
@@ -150,7 +151,11 @@ export default function VerifyEmailScreen() {
 
           <ThemedView style={styles.resendContainer}>
             {canResend ? (
-              <ThemedText onPress={handleResend}>Resend</ThemedText>
+              <TouchableOpacity
+              disabled={isLoading}
+               onPress={handleResend}>
+                <ThemedText>Resend</ThemedText>
+              </TouchableOpacity>
             ) : (
               <ThemedText style={{ opacity: 0.5 }}>
                 Resend available in {resendTimer}s

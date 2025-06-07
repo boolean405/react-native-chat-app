@@ -18,7 +18,8 @@ interface Props {
   tint: string;
   textColor: string;
   iconColor: string;
-  onUsernameCopied?: (text: string) => void; // 🔥 New prop
+  onUsernameCopied?: (text: string) => void; 
+  onPress?: () => void;
 }
 
 export const ProfileHeader: React.FC<Props> = ({
@@ -29,6 +30,7 @@ export const ProfileHeader: React.FC<Props> = ({
   textColor,
   iconColor,
   onUsernameCopied,
+  onPress,
 }) => {
   const copyUsername = async () => {
     await Clipboard.setStringAsync(username);
@@ -39,7 +41,7 @@ export const ProfileHeader: React.FC<Props> = ({
   };
 
   return (
-    <TouchableOpacity style={styles.profileRow} activeOpacity={0.8}>
+    <TouchableOpacity style={styles.profileRow} activeOpacity={0.8} onPress={onPress}>
       <Image
         source={{ uri: "https://randomuser.me/api/portraits/men/1.jpg" }}
         style={styles.profileImage}
