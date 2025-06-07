@@ -1,46 +1,155 @@
-import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Text, View } from "react-native";
-
-import { ThemedButton } from "@/components/ThemedButton";
-import { ThemedText } from "@/components/ThemedText";
+import {
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  useColorScheme,
+  ToastAndroid,
+  RefreshControl,
+} from "react-native";
+import { Colors } from "@/constants/Colors";
 import { ThemedView } from "@/components/ThemedView";
-import { clearUserData, getUserData } from "@/stores/auth-store";
+import { ProfileHeader } from "@/components/ProfileHeader";
+import { WalletTab } from "@/components/WalletTab";
+import { ListSection } from "@/components/ListSection";
+import { LogoutButton } from "@/components/LogoutButton";
+import { Ionicons } from "@expo/vector-icons";
+import { getUserData } from "@/stores/auth-store";
 
-export default function Chat() {
-  const [user, setUser] = useState(Object);
-  const router = useRouter();
+const screenWidth = Dimensions.get("window").width;
+const CONTAINER_WIDTH = screenWidth * 0.8;
 
+const MENU_ITEMS: {
+  id: string;
+  label: string;
+  iconName: keyof typeof Ionicons.glyphMap;
+}[] = [
+  { id: "1", label: "Settings", iconName: "settings-outline" },
+  { id: "2", label: "Wallet", iconName: "wallet-outline" },
+  { id: "3", label: "Help & Support", iconName: "help-circle-outline" },
+];
+
+const SERVICES: {
+  id: string;
+  label: string;
+  iconName: keyof typeof Ionicons.glyphMap;
+}[] = [
+  { id: "1", label: "Friends", iconName: "people-outline" },
+  { id: "2", label: "Groups", iconName: "people-circle-outline" },
+  { id: "3", label: "Marketplace", iconName: "cart-outline" },
+  { id: "4", label: "Videos", iconName: "videocam-outline" },
+  { id: "5", label: "Events", iconName: "calendar-outline" },
+  { id: "6", label: "Memories", iconName: "time-outline" },
+];
+
+export default function Menu() {
+  const [copiedText, setCopiedText] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+  const [user, setUser] = useState({
+    name: "",
+    username: "",
+    email: "",
+    password: "",
+    accessToken: "",
+  });
+
+  const colorScheme = useColorScheme();
+  const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
+
+  const walletBalance = 250.75;
+  const isOnline = true;
+  const username = "boolean405";
+  const name = "John Doe";
+
+  // real data
   useEffect(() => {
-    async function loadUser() {
-      const saveUser = await getUserData();
-      setUser(saveUser);
-    }
-    loadUser();
+    fetchUserData();
   }, []);
 
-  if (!user) {
-    return;
+  // Fetch user data from SecureStore when component mounts
+  async function fetchUserData() {
+    try {
+      setUser(await getUserData());
+
+      console.log(user);
+    } catch (e) {
+      console.log("Error fetching user data:", e);
+    }
   }
 
-  const handleDeleteUser = async () => {
-    await clearUserData();
-    setUser(null);
-    router.replace("/(auth)");
+  const handleUsernameCopied = (username: string) => {
+    setCopiedText(username);
+    ToastAndroid.show("Username copied!", ToastAndroid.SHORT);
+    console.log("Copied Username:", username);
   };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchUserData();
+    setRefreshing(false);
+    ToastAndroid.show("Refreshed!", ToastAndroid.SHORT);
+  };
+
   return (
-    <ThemedView
-      style={{
-        flex: 1,
-        alignContent: "center",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
+    <ScrollView
+      style={[styles.outerContainer, { backgroundColor: colors.background }]}
+      contentContainerStyle={{ paddingBottom: 40 }}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          tintColor={colors.tint}
+          colors={[colors.background]}
+          progressBackgroundColor={colors.tint}
+        />
+      }
     >
-      <ThemedText>{user?.email}</ThemedText>
-      <ThemedText>{user?.password}</ThemedText>
-      <ThemedText>{user?.accessToken}</ThemedText>
-      <ThemedButton title="Delete User" onPress={handleDeleteUser} />
-    </ThemedView>
+      <ThemedView style={styles.container}>
+        <ProfileHeader
+          name={user?.name}
+          username={user?.username}
+          isOnline={isOnline}
+          tint={colors.tint}
+          textColor={colors.text}
+          iconColor={colors.icon}
+          onUsernameCopied={handleUsernameCopied}
+        />
+
+        <WalletTab
+          balance={walletBalance}
+          tint={colors.tint}
+          backgroundColor={colors.secondary}
+        />
+
+        <ListSection
+          title="Services"
+          data={SERVICES}
+          tintColor={colors.tint}
+          textColor={colors.text}
+          separatorColor={colorScheme === "dark" ? "#444" : "#e0e0e0"}
+        />
+
+        <ListSection
+          title="Menu"
+          data={MENU_ITEMS}
+          tintColor={colors.icon}
+          textColor={colors.text}
+          separatorColor={colorScheme === "dark" ? "#444" : "#e0e0e0"}
+        />
+
+        <LogoutButton />
+      </ThemedView>
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+  },
+  container: {
+    width: CONTAINER_WIDTH,
+    alignSelf: "center",
+    paddingTop: 50,
+  },
+});

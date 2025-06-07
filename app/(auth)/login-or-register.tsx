@@ -7,7 +7,6 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
-  View,
   Keyboard,
   useColorScheme,
 } from "react-native";
@@ -83,7 +82,7 @@ export default function LoginOrRegister() {
           </ThemedText>
 
           {/* Input container */}
-          <View style={[styles.inputContainer, { borderColor: color }]}>
+          <ThemedView style={[styles.inputContainer, { borderColor: color }]}>
             <Ionicons name="mail-outline" size={24} style={[{ color }]} />
             <TextInput
               style={[styles.textInput, { color }]}
@@ -106,7 +105,7 @@ export default function LoginOrRegister() {
                 setEmail(sanitized);
               }}
             />
-          </View>
+          </ThemedView>
 
           {isError && (
             <ThemedText style={{ color: "red" }}>{errorMessage}</ThemedText>
