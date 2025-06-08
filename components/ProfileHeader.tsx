@@ -10,15 +10,17 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { useRouter } from "expo-router";
 
 interface Props {
   name: string;
   username: string;
+  profileImage: string;
   isOnline: boolean;
   tint: string;
   textColor: string;
   iconColor: string;
-  onUsernameCopied?: (text: string) => void; 
+  onUsernameCopied?: (text: string) => void;
   onPress?: () => void;
 }
 
@@ -31,7 +33,10 @@ export const ProfileHeader: React.FC<Props> = ({
   iconColor,
   onUsernameCopied,
   onPress,
+  profileImage,
 }) => {
+  const router = useRouter();
+
   const copyUsername = async () => {
     await Clipboard.setStringAsync(username);
     ToastAndroid.show("Username copied!", ToastAndroid.SHORT);
@@ -41,11 +46,12 @@ export const ProfileHeader: React.FC<Props> = ({
   };
 
   return (
-    <TouchableOpacity style={styles.profileRow} activeOpacity={0.8} onPress={onPress}>
-      <Image
-        source={{ uri: "https://randomuser.me/api/portraits/men/1.jpg" }}
-        style={styles.profileImage}
-      />
+    <TouchableOpacity
+      style={styles.profileRow}
+      activeOpacity={0.8}
+      onPress={onPress}
+    >
+      <Image source={{ uri: profileImage }} style={styles.profileImage} />
       <ThemedView style={styles.profileInfo}>
         <ThemedView style={styles.profileHeader}>
           <ThemedView style={{ flex: 1 }}>
@@ -82,7 +88,9 @@ export const ProfileHeader: React.FC<Props> = ({
               </ThemedText>
             </ThemedView>
           </ThemedView>
-          <TouchableOpacity onPress={() => alert("Edit Profile")}>
+          <TouchableOpacity
+            onPress={() => router.push("/(setting)/edit-profile")}
+          >
             <Ionicons name="create-outline" size={22} color={tint} />
           </TouchableOpacity>
         </ThemedView>

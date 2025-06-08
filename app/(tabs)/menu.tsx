@@ -51,6 +51,7 @@ export default function Menu() {
     email: "",
     password: "",
     accessToken: "",
+    profileImage: "",
   });
 
   const colorScheme = useColorScheme();
@@ -113,6 +114,7 @@ export default function Menu() {
           textColor={colors.text}
           iconColor={colors.icon}
           onUsernameCopied={handleUsernameCopied}
+          profileImage={user?.profileImage}
           onPress={() => router.push("/(menu)/profile")}
         />
 

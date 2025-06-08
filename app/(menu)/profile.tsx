@@ -54,9 +54,9 @@ export default function FlashScreen() {
     setRefreshing(false);
   }, []);
 
-  const handleEditProfile = ()=>{
-    router.push("/(settings)/edit-profile")
-  }
+  const handleEditProfile = () => {
+    router.push("/(setting)/edit-profile");
+  };
 
   const handleLove = (id: string) => {
     if (!user) return;
@@ -116,7 +116,7 @@ export default function FlashScreen() {
       </TouchableOpacity>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => setAvatarModalVisible(true)}>
-          <Image source={{ uri: user!.avatar }} style={styles.avatar} />
+          <Image source={{ uri: user!.profileImage }} style={styles.avatar} />
         </TouchableOpacity>
         <ThemedText style={[styles.name, { color: colors.text }]}>
           {user!.name}
@@ -152,7 +152,7 @@ export default function FlashScreen() {
           </TouchableOpacity>
         </View>
         <TouchableOpacity
-        onPress={handleEditProfile}
+          onPress={handleEditProfile}
           style={[styles.editButton, { backgroundColor: colors.primary }]}
         >
           <ThemedText style={{ color: colors.background, fontWeight: "bold" }}>
@@ -220,7 +220,7 @@ export default function FlashScreen() {
         >
           <View style={styles.modalContent}>
             <Image
-              source={{ uri: user.avatar }}
+              source={{ uri: user.profileImage }}
               style={styles.fullAvatar}
               resizeMode="contain"
             />
