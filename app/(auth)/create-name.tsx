@@ -147,11 +147,12 @@ export default function CreateName() {
                 opacity: 0.5,
               }, // dim button when disabled
             ]}
-            title={isLoading ? "Processing" : "Continue"}
+            title={!isLoading && "Continue"}
             onPress={handleContinue}
             disabled={
               isInvalidUsername || isInvalidName || isLoading || isError
             }
+            isLoading={isLoading}
           />
         </ThemedView>
       </ScrollView>

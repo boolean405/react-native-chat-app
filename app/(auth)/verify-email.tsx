@@ -83,15 +83,15 @@ export default function VerifyEmailScreen() {
                 params: { email },
               });
             } else {
-              const newUser = {
+              const user = {
                 name,
                 username,
                 email,
                 password,
                 accessToken: `1234/${email}/1234`,
               };
-              await saveUserData(newUser, newUser.accessToken);
-              router.replace("/(tabs)");
+              await saveUserData(user, user.accessToken);
+              router.replace("/(auth)/upload-photo");
             }
           }, 1000);
 
@@ -151,9 +151,7 @@ export default function VerifyEmailScreen() {
 
           <ThemedView style={styles.resendContainer}>
             {canResend ? (
-              <TouchableOpacity
-              disabled={isLoading}
-               onPress={handleResend}>
+              <TouchableOpacity disabled={isLoading} onPress={handleResend}>
                 <ThemedText>Resend</ThemedText>
               </TouchableOpacity>
             ) : (
@@ -190,7 +188,6 @@ const styles = StyleSheet.create({
   },
   codeInput: {
     borderWidth: 1,
-    borderColor: "#ccc",
     borderRadius: 8,
     width: 40,
     height: 50,

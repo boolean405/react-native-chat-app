@@ -167,9 +167,10 @@ export default function CreatePassword() {
               styles.button,
               (isInvalidPassword || isLoading || isError) && { opacity: 0.5 }, // dim button when disabled
             ]}
-            title={isLoading ? "Processing" : "Continue"}
+            title={!isLoading && "Continue"}
             onPress={handleRegister}
             disabled={isInvalidPassword || isLoading || isError}
+            isLoading={isLoading}
           />
         </ThemedView>
       </ScrollView>

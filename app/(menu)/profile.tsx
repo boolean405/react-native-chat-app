@@ -21,6 +21,8 @@ import { User } from "@/types";
 import PostCard from "@/components/PostCard";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { ThemedButton } from "@/components/ThemedButton";
+import { Ionicons } from "@expo/vector-icons";
 
 const { width: screenWidth } = Dimensions.get("window");
 const COVER_HEIGHT = 180;
@@ -31,7 +33,7 @@ export default function FlashScreen() {
 
   const [user, setUser] = useState<User | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [avatarModalVisible, setAvatarModalVisible] = useState(false);
   const [coverModalVisible, setCoverModalVisible] = useState(false);
   const router = useRouter();
@@ -41,10 +43,10 @@ export default function FlashScreen() {
   }, []);
 
   const loadData = async () => {
-    setLoading(true);
+    setIsLoading(true);
     const userData = await fetchUser();
     setUser(userData);
-    setLoading(false);
+    setIsLoading(false);
   };
 
   const onRefresh = useCallback(async () => {
@@ -116,57 +118,51 @@ export default function FlashScreen() {
       </TouchableOpacity>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => setAvatarModalVisible(true)}>
-          <Image source={{ uri: user!.profileImage }} style={styles.avatar} />
+          <Image
+            source={{ uri: user!.profileImage }}
+            style={[
+              styles.profileImage,
+              {
+                borderColor: colors.borderColor,
+                backgroundColor: colors.secondary,
+              },
+            ]}
+          />
         </TouchableOpacity>
-        <ThemedText style={[styles.name, { color: colors.text }]}>
-          {user!.name}
-        </ThemedText>
-        <ThemedText style={[styles.name, { color: colors.text }]}>
-          @{user!.username}
-        </ThemedText>
-        <ThemedText style={[styles.bio, { color: colors.icon }]}>
-          {user!.bio}
-        </ThemedText>
+        <ThemedText type="title">{user?.name}</ThemedText>
+        <ThemedText type="subtitle">@{user?.username}</ThemedText>
+        <ThemedText style={[styles.bio]}>{user?.bio && user.bio}</ThemedText>
         <View style={styles.stats}>
           <TouchableOpacity
             style={styles.statItem}
             onPress={handleFollowersPress}
           >
-            <ThemedText style={[styles.statNumber, { color: colors.text }]}>
-              {user!.followers}
-            </ThemedText>
-            <ThemedText style={[styles.statLabel, { color: colors.icon }]}>
-              Followers
-            </ThemedText>
+            <ThemedText type="subtitle">{user!.followers}</ThemedText>
+            <ThemedText type="param">Followers</ThemedText>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.statItem}
             onPress={handleFollowingPress}
           >
-            <ThemedText style={[styles.statNumber, { color: colors.text }]}>
-              {user!.following}
-            </ThemedText>
-            <ThemedText style={[styles.statLabel, { color: colors.icon }]}>
-              Following
-            </ThemedText>
+            <ThemedText type="subtitle">{user!.following}</ThemedText>
+            <ThemedText type="param">Following</ThemedText>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity
+        <ThemedButton
+          title={!isLoading && "Edit profile"}
+          isLoading={isLoading}
           onPress={handleEditProfile}
-          style={[styles.editButton, { backgroundColor: colors.primary }]}
-        >
-          <ThemedText style={{ color: colors.background, fontWeight: "bold" }}>
-            Edit Profile
-          </ThemedText>
-        </TouchableOpacity>
+          style={styles.editButton}
+        />
       </View>
-      <ThemedText style={[styles.sectionTitle, { color: colors.text }]}>
+
+      <ThemedText type="subtitle" style={[styles.sectionTitle]}>
         Posts
       </ThemedText>
     </>
   );
 
-  if (loading || !user) {
+  if (isLoading || !user) {
     return (
       <View
         style={[
@@ -275,18 +271,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "#E0E0E0",
   },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 4,
-    borderColor: "#fff",
-    backgroundColor: "#eee",
-    marginBottom: 12,
+  profileImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 3,
+    marginBottom: 20,
   },
-  name: { fontSize: 24, fontWeight: "bold" },
-  username: { fontSize: 10, fontWeight: "bold" },
-  bio: { fontSize: 16, marginTop: 4, marginBottom: 12, textAlign: "center" },
+  bio: { marginTop: 10, marginBottom: 20, textAlign: "center" },
   stats: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -299,20 +291,16 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 12,
   },
-  statNumber: { fontSize: 20, fontWeight: "bold" },
-  statLabel: { fontSize: 14 },
   editButton: {
-    paddingHorizontal: 32,
-    paddingVertical: 10,
-    borderRadius: 20,
+    paddingHorizontal: 20,
     marginBottom: 12,
     marginTop: 4,
   },
-  sectionTitle: { fontSize: 20, fontWeight: "bold", margin: 16 },
+  sectionTitle: { margin: 20 },
   postsList: { paddingHorizontal: 16, paddingBottom: 32 },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.85)",
+    // backgroundColor: "rgba(0,0,0,0.85)",
     justifyContent: "center",
     alignItems: "center",
   },

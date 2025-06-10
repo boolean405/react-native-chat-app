@@ -15,11 +15,12 @@ import { useRouter } from "expo-router";
 interface Props {
   name: string;
   username: string;
-  profileImage: string;
+  profilePhoto: string;
   isOnline: boolean;
   tint: string;
   textColor: string;
   iconColor: string;
+  secondary: string;
   onUsernameCopied?: (text: string) => void;
   onPress?: () => void;
 }
@@ -33,7 +34,8 @@ export const ProfileHeader: React.FC<Props> = ({
   iconColor,
   onUsernameCopied,
   onPress,
-  profileImage,
+  profilePhoto,
+  secondary,
 }) => {
   const router = useRouter();
 
@@ -51,7 +53,7 @@ export const ProfileHeader: React.FC<Props> = ({
       activeOpacity={0.8}
       onPress={onPress}
     >
-      <Image source={{ uri: profileImage }} style={styles.profileImage} />
+      <Image source={{ uri: profilePhoto }} style={[styles.profilePhoto, { borderColor: textColor ,backgroundColor: secondary}]} />
       <ThemedView style={styles.profileInfo}>
         <ThemedView style={styles.profileHeader}>
           <ThemedView style={{ flex: 1 }}>
@@ -105,11 +107,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 25,
   },
-  profileImage: {
+  profilePhoto: {
     width: 90,
     height: 90,
     borderRadius: 45,
-    marginRight: 15,
+    marginRight: 20,
+    borderWidth: 2,
   },
   profileInfo: { flex: 1 },
   profileHeader: {

@@ -128,9 +128,10 @@ export default function LoginPassword() {
               styles.button,
               (isInvalidPassword || isLoading || isError) && { opacity: 0.5 }, // dim button when disabled
             ]}
-            title={isLoading ? "Processing" : "Login"}
+            title={!isLoading && "Login"}
             onPress={handleLogin}
             disabled={isInvalidPassword || isLoading || isError}
+            isLoading={isLoading}
           />
           <ThemedView style={styles.forgotPasswordContainer}>
             <TouchableOpacity

@@ -116,9 +116,10 @@ export default function LoginOrRegister() {
               styles.button,
               (isInvalidEmail || isLoading || isError) && { opacity: 0.5 }, // dim button when disabled
             ]}
-            title={isLoading ? "Processing" : "Continue"}
+            title={!isLoading && "Continue"}
             disabled={isInvalidEmail || isLoading || isError}
             onPress={handleContinue}
+            isLoading={isLoading}
           />
           <ThemedText style={{ fontWeight: "200" }}>
             By clicking continue, you agree to our

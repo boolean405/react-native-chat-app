@@ -168,9 +168,10 @@ export default function ResetPassword() {
               styles.button,
               (isInvalidPassword || isLoading || isError) && { opacity: 0.5 }, // dim button when disabled
             ]}
-            title={isLoading ? "Processing" : "Reset password"}
+            title={!isLoading && "Reset password"}
             onPress={handleRegister}
             disabled={isInvalidPassword || isLoading || isError}
+            isLoading={isLoading}
           />
         </ThemedView>
       </ScrollView>

@@ -20,7 +20,7 @@ import { getUserData } from "@/stores/auth-store";
 const screenWidth = Dimensions.get("window").width;
 const CONTAINER_WIDTH = screenWidth * 0.8;
 
-const MENU_ITEMS: {
+const SETTINGS: {
   id: string;
   label: string;
   iconName: keyof typeof Ionicons.glyphMap;
@@ -29,15 +29,13 @@ const MENU_ITEMS: {
   { id: "3", label: "Help & Support", iconName: "help-circle-outline" },
 ];
 
-const SERVICES: {
+const MENUS: {
   id: string;
   label: string;
   iconName: keyof typeof Ionicons.glyphMap;
 }[] = [
   { id: "1", label: "Friends", iconName: "people-outline" },
   { id: "2", label: "Groups", iconName: "people-circle-outline" },
-  { id: "3", label: "Marketplace", iconName: "cart-outline" },
-  { id: "4", label: "Videos", iconName: "videocam-outline" },
   { id: "5", label: "Events", iconName: "calendar-outline" },
   { id: "6", label: "Memories", iconName: "time-outline" },
 ];
@@ -51,7 +49,7 @@ export default function Menu() {
     email: "",
     password: "",
     accessToken: "",
-    profileImage: "",
+    profilePhoto: "",
   });
 
   const colorScheme = useColorScheme();
@@ -113,8 +111,9 @@ export default function Menu() {
           tint={colors.tint}
           textColor={colors.text}
           iconColor={colors.icon}
+          secondary={colors.secondary}
           onUsernameCopied={handleUsernameCopied}
-          profileImage={user?.profileImage}
+          profilePhoto={user?.profilePhoto}
           onPress={() => router.push("/(menu)/profile")}
         />
 
@@ -126,7 +125,7 @@ export default function Menu() {
 
         <ListSection
           title="Services"
-          data={SERVICES}
+          data={MENUS}
           tintColor={colors.tint}
           textColor={colors.text}
           separatorColor={colorScheme === "dark" ? "#444" : "#e0e0e0"}
@@ -136,8 +135,8 @@ export default function Menu() {
         />
 
         <ListSection
-          title="Menu"
-          data={MENU_ITEMS}
+          title="Settings"
+          data={SETTINGS}
           tintColor={colors.icon}
           textColor={colors.text}
           separatorColor={colorScheme === "dark" ? "#444" : "#e0e0e0"}

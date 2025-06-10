@@ -1,7 +1,11 @@
 import React from "react";
+import { useRouter } from "expo-router";
 import { StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
+import { clearUserData } from "@/stores/auth-store";
+
+const router = useRouter();
 
 export const LogoutButton: React.FC = () => {
   const handleLogout = () => {
@@ -10,7 +14,11 @@ export const LogoutButton: React.FC = () => {
       {
         text: "Logout",
         style: "destructive",
-        onPress: () => console.log("Logged out"),
+        onPress: async () => {
+          // api here
+          await clearUserData();
+          router.replace("/(auth)");
+        },
       },
     ]);
   };

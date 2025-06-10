@@ -5,7 +5,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: "default" | "title" | "defaultItalic" | "subtitle" | "link";
+  type?: "default" | "title" | "defaultItalic" | "subtitle" | "param" | "link";
 };
 
 export function ThemedText({
@@ -22,9 +22,10 @@ export function ThemedText({
       style={[
         { color },
         type === "default" ? styles.default : undefined,
-        type === "title" ? styles.title : undefined,
         type === "defaultItalic" ? styles.defaultItalic : undefined,
+        type === "title" ? styles.title : undefined,
         type === "subtitle" ? styles.subtitle : undefined,
+        type === "param" ? styles.param : undefined,
         type === "link" ? styles.link : undefined,
         style,
       ]}
@@ -41,7 +42,7 @@ const styles = StyleSheet.create({
   defaultItalic: {
     fontSize: 16,
     // lineHeight: 24,
-    fontStyle: "italic"
+    fontStyle: "italic",
   },
   title: {
     fontSize: 32,
@@ -51,6 +52,10 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 20,
     fontWeight: "500",
+  },
+  param: {
+    fontSize: 14,
+    // fontWeight: "500",
   },
   link: {
     fontSize: 16,

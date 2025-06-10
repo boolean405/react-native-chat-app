@@ -3,6 +3,7 @@ import {
   Text,
   StyleSheet,
   type TouchableOpacityProps,
+  ActivityIndicator,
 } from "react-native";
 
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -11,7 +12,8 @@ export type ThemedButtonProps = TouchableOpacityProps & {
   lightColor?: string;
   darkColor?: string;
   type?: "primary" | "secondary" | "link";
-  title: string;
+  title: any;
+  isLoading: boolean;
 };
 
 export function ThemedButton({
@@ -20,6 +22,7 @@ export function ThemedButton({
   darkColor,
   type = "primary",
   title,
+  isLoading,
   ...rest
 }: ThemedButtonProps) {
   const backgroundColor = useThemeColor(
@@ -42,7 +45,11 @@ export function ThemedButton({
       ]}
       {...rest}
     >
-      <Text style={[styles.text, { color: textColor }]}>{title}</Text>
+      {isLoading ? (
+        <ActivityIndicator color={textColor} size="small" />
+      ) : (
+        <Text style={[styles.text, { color: textColor }]}>{title}</Text>
+      )}
     </TouchableOpacity>
   );
 }

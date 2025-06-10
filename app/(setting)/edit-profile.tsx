@@ -148,7 +148,7 @@ const EditProfile: React.FC = () => {
         keyboardShouldPersistTaps="handled"
       >
         {/* Cover Image */}
-        <TouchableOpacity onPress={() => pickImage(setCoverImage, [3, 1])}>
+        <TouchableOpacity onPress={() => pickImage(setCoverImage, [2, 1])}>
           {coverImage ? (
             <Image
               source={{ uri: coverImage }}
@@ -171,7 +171,7 @@ const EditProfile: React.FC = () => {
         {/* Profile Image */}
         <TouchableOpacity
           onPress={() => pickImage(setProfileImage, [1, 1])}
-          style={styles.profileImageWrapper}
+          style={[styles.profileImageWrapper, { borderColor: theme.borderColor }]}
         >
           {profileImage ? (
             <Image source={{ uri: profileImage }} style={styles.profileImage} />
@@ -193,7 +193,7 @@ const EditProfile: React.FC = () => {
         <ThemedView style={styles.bottomContainer}>
           <ThemedText type="title">{name}</ThemedText>
           <ThemedText type="subtitle" style={styles.titleText}>
-            {username && "@" + username}
+            {username && `@${username}`}
           </ThemedText>
 
           {/* Name Input */}
@@ -258,11 +258,12 @@ const EditProfile: React.FC = () => {
                 opacity: 0.5,
               },
             ]}
-            title={isLoading ? "Processing" : "Continue"}
+            title={!isLoading && "Continue"}
             onPress={handleContinue}
             disabled={
               isInvalidUsername || isInvalidName || isLoading || isError
             }
+            isLoading={isLoading}
           />
         </ThemedView>
       </ScrollView>
@@ -289,10 +290,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   profileImageWrapper: {
-    marginTop: -60,
+    marginTop: -30,
     borderRadius: 60,
-    borderWidth: 3,
-    borderColor: "#fff",
+    borderWidth: 2,
   },
   profileImage: {
     width: 120,
