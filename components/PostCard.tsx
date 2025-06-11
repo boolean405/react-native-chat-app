@@ -32,7 +32,7 @@ const PostCard: React.FC<Props> = ({
       <View style={styles.postUserRow}>
         <TouchableOpacity onPress={() => onUserPress(post.user)}>
           <Image
-            source={{ uri: post.user.profileImage }}
+            source={{ uri: post.user.profilePhoto }}
             style={styles.postUserAvatar}
           />
         </TouchableOpacity>

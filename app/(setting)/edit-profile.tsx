@@ -32,7 +32,7 @@ const EditProfile: React.FC = () => {
 
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
-  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [profilePhoto, setProfileImage] = useState<string | null>(null);
   const [coverImage, setCoverImage] = useState<string | null>(null);
 
   const [isInvalidName, setIsInvalidName] = useState(false);
@@ -48,7 +48,7 @@ const EditProfile: React.FC = () => {
         if (userData) {
           setName(userData.name || "");
           setUsername(userData.username || "");
-          setProfileImage(userData.profileImage || null); // if you have it saved
+          setProfileImage(userData.profilePhoto || null); // if you have it saved
           setCoverImage(userData.coverImage || null); // if you have it saved
         }
       } catch (error) {
@@ -104,7 +104,7 @@ const EditProfile: React.FC = () => {
   const handleContinue = async () => {
     Keyboard.dismiss();
     setIsLoading(true);
-    console.log(profileImage);
+    console.log(profilePhoto);
 
     setTimeout(async () => {
       try {
@@ -119,7 +119,7 @@ const EditProfile: React.FC = () => {
         const updateUser = {
           name,
           username,
-          profileImage,
+          profilePhoto,
           coverImage,
           accessToken: `1234/${username}/1234`,
         };
@@ -173,8 +173,8 @@ const EditProfile: React.FC = () => {
           onPress={() => pickImage(setProfileImage, [1, 1])}
           style={[styles.profileImageWrapper, { borderColor: theme.borderColor }]}
         >
-          {profileImage ? (
-            <Image source={{ uri: profileImage }} style={styles.profileImage} />
+          {profilePhoto ? (
+            <Image source={{ uri: profilePhoto }} style={styles.profilePhoto} />
           ) : (
             <ThemedView
               style={[
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     borderWidth: 2,
   },
-  profileImage: {
+  profilePhoto: {
     width: 120,
     height: 120,
     borderRadius: 60,

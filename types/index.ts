@@ -2,11 +2,13 @@ export type User = {
   id: string;
   name: string;
   username: string;
-  profileImage: string;
+  email: string;
+  password: string;
+  profilePhoto: string;
+  coverPhoto: string;
   bio: string;
   followers: number;
   following: number;
-  coverPhoto: string;
   posts: Post[];
 };
 

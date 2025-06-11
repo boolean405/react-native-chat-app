@@ -119,9 +119,9 @@ export default function FlashScreen() {
       <View style={styles.header}>
         <TouchableOpacity onPress={() => setAvatarModalVisible(true)}>
           <Image
-            source={{ uri: user!.profileImage }}
+            source={{ uri: user!.profilePhoto }}
             style={[
-              styles.profileImage,
+              styles.profilePhoto,
               {
                 borderColor: colors.borderColor,
                 backgroundColor: colors.secondary,
@@ -216,7 +216,7 @@ export default function FlashScreen() {
         >
           <View style={styles.modalContent}>
             <Image
-              source={{ uri: user.profileImage }}
+              source={{ uri: user.profilePhoto }}
               style={styles.fullAvatar}
               resizeMode="contain"
             />
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "#E0E0E0",
   },
-  profileImage: {
+  profilePhoto: {
     width: 120,
     height: 120,
     borderRadius: 60,
