@@ -12,21 +12,21 @@ import {
 
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { saveUserData } from "@/stores/auth-store";
+import { verify } from "@/services/api";
 
 export default function VerifyEmailScreen() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [isVerified, setIsVerified] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [resendTimer, setResendTimer] = useState(60);
+  const [resendTimer, setResendTimer] = useState(59);
   const [canResend, setCanResend] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const inputs = useRef<Array<TextInput | null>>([]);
 
   const router = useRouter();
   const colorScheme = useColorScheme();
   const color = colorScheme === "dark" ? "white" : "black";
-  const inputs = useRef<Array<TextInput | null>>([]);
 
   const { name, username, email, password } = useLocalSearchParams();
 
@@ -44,12 +44,12 @@ export default function VerifyEmailScreen() {
 
   const handleResend = () => {
     if (!canResend) return;
-    setResendTimer(60);
+    setResendTimer(59);
     setCanResend(false);
     // API logic here
   };
 
-  const handleOnChange = (text: string, index: number) => {
+  const handleOnChange = async (text: string, index: number) => {
     // Always clear error when input changes
     setIsError(false);
 
@@ -64,39 +64,29 @@ export default function VerifyEmailScreen() {
       if (allFilled) {
         const code = newCode.join("");
 
-        // api code here
+        // Api code here
         setIsLoading(true);
-        setTimeout(() => {
-          const emailCode = "111111";
-          if (code !== emailCode) {
-            setIsError(true);
-            setErrorMessage("Incorrect or expired verification code");
-            setIsLoading(false);
-            return;
-          }
+        try {
+          const data = await verify(email, code);
+          if (data.status) {
+            setIsVerified(true);
+            await new Promise((r) => setTimeout(r, 1e3));
 
-          setIsVerified(true);
-          setTimeout(async () => {
             if (!password) {
               router.replace({
                 pathname: "/(auth)/reset-password",
                 params: { email },
               });
-            } else {
-              const user = {
-                name,
-                username,
-                email,
-                password,
-                accessToken: `1234/${email}/1234`,
-              };
-              await saveUserData(user, user.accessToken);
-              router.replace("/(auth)/upload-photo");
-            }
-          }, 1000);
+            } else router.replace("/(auth)/upload-photo");
+          }
+        } catch (error: any) {
+          setIsError(true);
+          console.log(error);
 
+          setErrorMessage(error.message);
+        } finally {
           setIsLoading(false);
-        }, 1000);
+        }
       }
     }
   };
@@ -119,7 +109,14 @@ export default function VerifyEmailScreen() {
         <ThemedView style={styles.container}>
           <ThemedText type="subtitle">Verify your email</ThemedText>
           <ThemedText style={styles.titleText}>
-            Enter verify code, check also in Spam folder
+            Enter verify code, check in your email
+          </ThemedText>
+          <ThemedText>"{email}"</ThemedText>
+          <ThemedText
+            type="defaultItalic"
+            style={{ marginBottom: 20, marginTop: 5 }}
+          >
+            Don't forget to check also in your spam folder
           </ThemedText>
 
           <ThemedView style={styles.inputContainer}>
@@ -131,7 +128,7 @@ export default function VerifyEmailScreen() {
                 }}
                 style={[
                   styles.codeInput,
-                  { color },
+                  { color, borderColor: color },
                   isError && { borderColor: "red" },
                   isVerified && { borderColor: "green" },
                 ]}
@@ -178,7 +175,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     marginTop: 60,
-    marginBottom: 20,
+    marginBottom: 5,
   },
   inputContainer: {
     flexDirection: "row",

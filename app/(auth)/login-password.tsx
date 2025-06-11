@@ -1,11 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-
-import { ThemedButton } from "@/components/ThemedButton";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { saveUserData } from "@/stores/auth-store";
-import { Ionicons } from "@expo/vector-icons";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -17,6 +11,12 @@ import {
   useColorScheme,
   TouchableOpacity,
 } from "react-native";
+
+import { ThemedButton } from "@/components/ThemedButton";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { Ionicons } from "@expo/vector-icons";
+import { saveUserData } from "@/stores/authStore";
 
 export default function LoginPassword() {
   const [password, setPassword] = useState("");

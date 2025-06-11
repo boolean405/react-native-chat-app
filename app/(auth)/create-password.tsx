@@ -14,7 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedButton } from "@/components/ThemedButton";
-import { register } from "@/stores/auth-store";
+import { register } from "@/services/api";
 
 export default function CreatePassword() {
   const [password, setPassword] = useState("");
@@ -59,6 +59,8 @@ export default function CreatePassword() {
       }
     } catch (error: any) {
       setIsError(true);
+      console.log(error);
+      
       setErrorMessage(error.message);
     } finally {
       setIsLoading(false);

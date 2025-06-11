@@ -12,8 +12,8 @@ import {
 import { Colors } from "@/constants/Colors";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
-import { getUserData } from "@/stores/auth-store";
 import { ThemedButton } from "@/components/ThemedButton";
+import { getUserData } from "@/stores/authStore";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -121,7 +121,10 @@ export default function UploadPhoto() {
           <ThemedView
             style={[
               styles.profilePlaceholder,
-              { backgroundColor: theme.secondary, borderColor: theme.borderColor },
+              {
+                backgroundColor: theme.secondary,
+                borderColor: theme.borderColor,
+              },
             ]}
           >
             <ThemedText style={[styles.addPhotoText, { color: theme.text }]}>

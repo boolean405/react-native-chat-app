@@ -16,7 +16,7 @@ import {
 } from "react-native";
 
 import { Colors } from "@/constants/Colors";
-import { fetchUser } from "@/api/user";
+import { fetchUser } from "@/config/user";
 import { User } from "@/types";
 import PostCard from "@/components/PostCard";
 import { ThemedText } from "@/components/ThemedText";

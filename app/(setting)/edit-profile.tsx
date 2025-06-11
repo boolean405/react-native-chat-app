@@ -20,7 +20,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedButton } from "@/components/ThemedButton";
-import { getUserData, saveUserData } from "@/stores/auth-store";
+import { getUserData, saveUserData } from "@/stores/authStore";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -171,7 +171,10 @@ const EditProfile: React.FC = () => {
         {/* Profile Image */}
         <TouchableOpacity
           onPress={() => pickImage(setProfileImage, [1, 1])}
-          style={[styles.profileImageWrapper, { borderColor: theme.borderColor }]}
+          style={[
+            styles.profileImageWrapper,
+            { borderColor: theme.borderColor },
+          ]}
         >
           {profilePhoto ? (
             <Image source={{ uri: profilePhoto }} style={styles.profilePhoto} />

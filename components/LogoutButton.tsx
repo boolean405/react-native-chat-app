@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
-import { clearUserData } from "@/stores/auth-store";
+import { clearUserData } from "@/stores/authStore";
 
 const router = useRouter();
 

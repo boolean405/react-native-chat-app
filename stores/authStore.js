@@ -1,8 +1,4 @@
 import * as SecureStore from "expo-secure-store";
-import api from "@/api/axios";
-
-// const BASE_URL = process.env.EXPO_PUBLIC_SERVER_URL;
-// const USER_API_URL = `${BASE_URL}/api/user`;
 
 export async function saveUserData(user, accessToken) {
   await SecureStore.setItemAsync("user", JSON.stringify(user));
@@ -21,50 +17,6 @@ export async function getAccessToken() {
 export async function clearUserData() {
   await SecureStore.deleteItemAsync("user");
   await SecureStore.deleteItemAsync("accessToken");
-}
-
-// Start api
-// Check user exist or not
-export async function existEmail(email) {
-  try {
-    const response = await api.get("/api/user/exist-email", {
-      params: {
-        email,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-}
-
-// Check username exist or not
-export async function existUsername(username) {
-  try {
-    const response = await api.get("/api/user/exist-username", {
-      params: {
-        username,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-}
-
-// Register
-export async function register(name, username, email, password) {
-  try {
-    const response = await api.post("/api/user/register", {
-      name,
-      username,
-      email,
-      password,
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
 }
 
 // export async function register(name, username, email, password) {

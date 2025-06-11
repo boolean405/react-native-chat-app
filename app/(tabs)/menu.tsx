@@ -15,7 +15,7 @@ import { WalletTab } from "@/components/WalletTab";
 import { ListSection } from "@/components/ListSection";
 import { LogoutButton } from "@/components/LogoutButton";
 import { Ionicons } from "@expo/vector-icons";
-import { getUserData } from "@/stores/auth-store";
+import { getUserData } from "@/stores/authStore";
 
 const screenWidth = Dimensions.get("window").width;
 const CONTAINER_WIDTH = screenWidth * 0.8;

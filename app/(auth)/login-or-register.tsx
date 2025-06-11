@@ -15,7 +15,7 @@ import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Ionicons } from "@expo/vector-icons";
-import { existEmail } from "@/stores/auth-store";
+import { existEmail } from "@/services/api";
 
 export default function LoginOrRegister() {
   const [email, setEmail] = useState("");

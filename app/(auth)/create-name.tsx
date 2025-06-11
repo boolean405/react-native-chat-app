@@ -14,7 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedButton } from "@/components/ThemedButton";
-import { existUsername } from "@/stores/auth-store";
+import { existUsername } from "@/services/api";
 
 export default function CreateName() {
   const [name, setName] = useState("");

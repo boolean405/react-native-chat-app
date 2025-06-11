@@ -10,11 +10,11 @@ import {
   useColorScheme,
 } from "react-native";
 
+import { Ionicons } from "@expo/vector-icons";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { saveUserData } from "@/stores/auth-store";
-import { Ionicons } from "@expo/vector-icons";
+import { saveUserData } from "@/stores/authStore";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
