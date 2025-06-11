@@ -60,7 +60,7 @@ export default function CreateName() {
       });
     } catch (error: any) {
       setIsError(true);
-      setErrorMessage(error.message);
+      setErrorMessage(error);
     } finally {
       setIsLoading(false);
     }

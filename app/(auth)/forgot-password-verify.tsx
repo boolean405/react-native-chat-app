@@ -13,7 +13,7 @@ import {
 
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { register, verify } from "@/services/api";
+import { forgotPassword, forgotPasswordVerify } from "@/services/api";
 
 export default function VerifyEmailScreen() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
@@ -29,7 +29,7 @@ export default function VerifyEmailScreen() {
   const colorScheme = useColorScheme();
   const color = colorScheme === "dark" ? "white" : "black";
 
-  const { name, username, email, password } = useLocalSearchParams();
+  const { email } = useLocalSearchParams();
 
   useEffect(() => {
     let timer: any;
@@ -51,7 +51,7 @@ export default function VerifyEmailScreen() {
     // Register again because need code again
     setIsLoading(true);
     try {
-      await register(name, username, email, password);
+      await forgotPassword(email);
     } catch (error: any) {
       setIsError(true);
       setErrorMessage(error);
@@ -78,11 +78,14 @@ export default function VerifyEmailScreen() {
         // Api code here
         setIsLoading(true);
         try {
-          const data = await verify(email, code);
+          const data = await forgotPasswordVerify(email, code);
           if (data.status) {
             setIsVerified(true);
             await new Promise((r) => setTimeout(r, 1e3));
-            router.replace("/(auth)/upload-photo");
+            router.replace({
+              pathname: "/(auth)/reset-password",
+              params: { email },
+            });
           }
         } catch (error: any) {
           setIsError(true);

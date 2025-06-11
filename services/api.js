@@ -14,7 +14,7 @@ export async function existEmail(email) {
     });
     return response.data;
   } catch (error) {
-    throw error;
+    throw error.response?.data?.message;
   }
 }
 
@@ -28,7 +28,7 @@ export async function existUsername(username) {
     });
     return response.data;
   } catch (error) {
-    throw error;
+    throw error.response?.data?.message;
   }
 }
 
@@ -43,7 +43,7 @@ export async function register(name, username, email, password) {
     });
     return response.data;
   } catch (error) {
-    throw error;
+    throw error.response?.data?.message;
   }
 }
 
@@ -55,13 +55,56 @@ export async function verify(email, code) {
       code,
     });
     const data = response.data;
-
     // Save user data to localstorage
     if (data.status)
       await saveUserData(data.result.user, data.result.accessToken);
 
     return data;
   } catch (error) {
-    throw error;
+    throw error.response?.data?.message;
+  }
+}
+
+// Forgot password
+export async function forgotPassword(email) {
+  try {
+    const response = await api.post("/api/user/forgot-password", {
+      email,
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.message;
+  }
+}
+
+// Forgot password verify
+export async function forgotPasswordVerify(email, code) {
+  try {
+    const response = await api.post("/api/user/forgot-password-verify", {
+      email,
+      code,
+    });
+
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.message;
+  }
+}
+
+// Reset password
+export async function resetPassword(password, token) {
+  try {
+    const response = await api.post("/api/user/reset-password", {
+      password,
+      token,
+    });
+    const data = response.data;
+    // Save user data to localstorage
+    if (data.status)
+      await saveUserData(data.result.user, data.result.accessToken);
+
+    return data;
+  } catch (error) {
+    throw error.response?.data?.message;
   }
 }

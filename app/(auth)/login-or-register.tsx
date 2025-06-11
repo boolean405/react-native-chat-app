@@ -40,9 +40,10 @@ export default function LoginOrRegister() {
 
   const handleContinue = async () => {
     Keyboard.dismiss();
+
+    // api call
     setIsLoading(true);
     try {
-      // api call
       const data = await existEmail(email);
       if (data.status) {
         router.push({
@@ -57,7 +58,7 @@ export default function LoginOrRegister() {
       }
     } catch (error: any) {
       setIsError(true);
-      setErrorMessage(error.message);
+      setErrorMessage(error);
     } finally {
       setIsLoading(false);
     }

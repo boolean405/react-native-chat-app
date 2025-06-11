@@ -1,22 +1,23 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   TextInput,
-  View,
-  Keyboard,
-  useColorScheme,
   TouchableOpacity,
+  useColorScheme,
+  View,
 } from "react-native";
 
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Ionicons } from "@expo/vector-icons";
 import { saveUserData } from "@/stores/authStore";
+import { Ionicons } from "@expo/vector-icons";
+import { forgotPassword } from "@/services/api";
 
 export default function LoginPassword() {
   const [password, setPassword] = useState("");
@@ -38,9 +39,38 @@ export default function LoginPassword() {
       : setIsInvalidPassword(false);
   }, [password]);
 
+  const handleForgotPassword = async () => {
+    // Api code here
+    setIsLoading(true);
+    try {
+      const data = await forgotPassword(email);
+      if (data.status) {
+        router.push({
+          pathname: "/(auth)/forgot-password-verify",
+          params: { email },
+        });
+      }
+    } catch (error: any) {
+      setIsError(true);
+      setErrorMessage(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleLogin = async () => {
     Keyboard.dismiss();
+
+    // API code here
     setIsLoading(true);
+    try {
+    } catch (error: any) {
+      setIsError(true);
+      setErrorMessage(error);
+    } finally {
+      setIsLoading(false);
+    }
+
     setTimeout(async () => {
       const serverUser = {
         name: "Boolean",
@@ -136,12 +166,7 @@ export default function LoginPassword() {
           <ThemedView style={styles.forgotPasswordContainer}>
             <TouchableOpacity
               disabled={isLoading}
-              onPress={() => {
-                router.push({
-                  pathname: "/(auth)/verify-email",
-                  params: { email },
-                });
-              }}
+              onPress={handleForgotPassword}
             >
               <ThemedText type="defaultItalic">Forgot password?</ThemedText>
             </TouchableOpacity>

@@ -47,9 +47,9 @@ export default function CreatePassword() {
       return;
     }
 
+    // Api call
     setIsLoading(true);
     try {
-      // Api call
       const data = await register(name, username, email, password);
       if (data.status) {
         router.push({
@@ -59,9 +59,7 @@ export default function CreatePassword() {
       }
     } catch (error: any) {
       setIsError(true);
-      console.log(error);
-      
-      setErrorMessage(error.message);
+      setErrorMessage(error);
     } finally {
       setIsLoading(false);
     }

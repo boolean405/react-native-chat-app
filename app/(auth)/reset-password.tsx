@@ -1,5 +1,5 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   Keyboard,
   KeyboardAvoidingView,
@@ -14,7 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { saveUserData } from "@/stores/authStore";
+import { resetPassword } from "@/services/api";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
@@ -38,7 +38,7 @@ export default function ResetPassword() {
       : setIsInvalidPassword(false);
   }, [password, confirmPassword]);
 
-  const handleRegister = async () => {
+  const handleResetPassword = async () => {
     Keyboard.dismiss();
 
     // Check for password mismatch
@@ -48,14 +48,14 @@ export default function ResetPassword() {
       return;
     }
 
+    // Api call
     setIsLoading(true);
     try {
-      const user = { email, password, accessToken: `1234/${email}/1234` };
-      await saveUserData(user, user.accessToken);
-      router.replace("/(tabs)");
+      const data = await resetPassword(email, password);
+      if (data.status) router.replace("/(tabs)");
     } catch (error: any) {
       setIsError(true);
-      setErrorMessage(error.message);
+      setErrorMessage(error);
     } finally {
       setIsLoading(false);
     }
@@ -140,7 +140,7 @@ export default function ResetPassword() {
                 onSubmitEditing={() => {
                   !isInvalidPassword &&
                     password === confirmPassword &&
-                    handleRegister();
+                    handleResetPassword();
                 }}
                 onChangeText={(text) => {
                   setIsError(false);
@@ -169,7 +169,7 @@ export default function ResetPassword() {
               (isInvalidPassword || isLoading || isError) && { opacity: 0.5 }, // dim button when disabled
             ]}
             title={!isLoading && "Reset password"}
-            onPress={handleRegister}
+            onPress={handleResetPassword}
             disabled={isInvalidPassword || isLoading || isError}
             isLoading={isLoading}
           />
