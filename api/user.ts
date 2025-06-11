@@ -1,17 +1,24 @@
-import { User, Post } from "@/types";
+import { Post, User } from "@/types";
 
 export async function fetchUser(): Promise<User> {
   await new Promise((res) => setTimeout(res, 800));
-  const user = {
+
+  const user: User = {
     id: "1",
     name: "Jane Doe",
     username: "boolean",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+    email: "jane@example.com", // add missing fields
+    password: "securepassword", // add missing fields
+    profilePhoto: "https://randomuser.me/api/portraits/women/44.jpg",
+    coverPhoto: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
     bio: "Welcome to my profile! Love to share thoughts, photos, and videos.",
     followers: 1280,
     following: 342,
-    coverPhoto: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
   };
+
+  const userForPost = { ...user };
+  delete userForPost.posts; // ensure posts is excluded (optional, but safe)
+
   const posts: Post[] = [
     {
       id: "p1",
@@ -22,7 +29,7 @@ export async function fetchUser(): Promise<User> {
       loveCount: 3,
       commentCount: 2,
       shareCount: 1,
-      user,
+      user: userForPost,
     },
     {
       id: "p2",
@@ -34,7 +41,7 @@ export async function fetchUser(): Promise<User> {
       loveCount: 10,
       commentCount: 5,
       shareCount: 0,
-      user,
+      user: userForPost,
     },
     {
       id: "p3",
@@ -47,8 +54,9 @@ export async function fetchUser(): Promise<User> {
       loveCount: 7,
       commentCount: 3,
       shareCount: 2,
-      user,
+      user: userForPost,
     },
   ];
+
   return { ...user, posts };
 }

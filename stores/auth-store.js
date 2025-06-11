@@ -1,8 +1,9 @@
 import * as SecureStore from "expo-secure-store";
+import api from "@/api/axios";
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL;
+// const BASE_URL = process.env.EXPO_PUBLIC_SERVER_URL;
+// const USER_API_URL = `${BASE_URL}/api/user`;
 
-// Save user & accessToken
 export async function saveUserData(user, accessToken) {
   await SecureStore.setItemAsync("user", JSON.stringify(user));
   await SecureStore.setItemAsync("accessToken", accessToken);
@@ -21,6 +22,38 @@ export async function clearUserData() {
   await SecureStore.deleteItemAsync("user");
   await SecureStore.deleteItemAsync("accessToken");
 }
+
+// start api
+export async function existUser(email) {
+  try {
+    const response = await api.get("/api/user/exist-user", {
+      params: {
+        email,
+      },
+    });
+    return response.data.result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// export async function register(name, username, email, password) {
+//   try {
+//     const response = await api.post(`${USER_API_URL}/register`, {
+//       name,
+//       username,
+//       email,
+//       password,
+//     });
+//     console.log(response);
+//     console.log(response.data);
+//     console.log(response.data.result);
+
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// }
 
 // // Setup axios instance with auth header automatically
 // export async function axiosInstance() {

@@ -14,8 +14,8 @@ export default function FlashScreen() {
   const router = useRouter();
 
   useEffect(() => {
-    // Start pulsing animation on logo
-    const pulse = Animated.loop(
+    // Pulsing animation on logo
+    const loadingFlash = Animated.loop(
       Animated.sequence([
         Animated.timing(scaleAnim, {
           toValue: 1.2,
@@ -30,23 +30,18 @@ export default function FlashScreen() {
       ])
     );
 
-    pulse.start();
+    loadingFlash.start();
 
     // TODO: Enable auth check to auto-navigate
     const checkAuth = async () => {
       const user = await getUserData();
       setTimeout(() => {
-        if (user) {
-          router.replace("/(tabs)"); // Navigate to main app
-        } else {
-          router.replace("/(auth)/login-or-register");
-        }
+        router.replace(user ? "/(tabs)" : "/(auth)/login-or-register");
       }, 1000);
     };
-
     checkAuth();
 
-    return () => pulse.stop(); // Clean up animation loop
+    return () => loadingFlash.stop(); // Clean up animation loop
   }, []);
 
   return (
