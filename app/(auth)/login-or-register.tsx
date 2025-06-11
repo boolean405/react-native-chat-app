@@ -43,7 +43,8 @@ export default function LoginOrRegister() {
     setIsLoading(true);
     try {
       // api call
-      if (await existEmail(email)) {
+      const data = await existEmail(email);
+      if (data.status) {
         router.push({
           pathname: "/(auth)/login-password",
           params: { email },

@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedButton } from "@/components/ThemedButton";
+import { register } from "@/stores/auth-store";
 
 export default function CreatePassword() {
   const [password, setPassword] = useState("");
@@ -37,7 +38,7 @@ export default function CreatePassword() {
       : setIsInvalidPassword(false);
   }, [password, confirmPassword]);
 
-  const handleRegister = () => {
+  const handleContinue = async () => {
     Keyboard.dismiss();
 
     if (password !== confirmPassword) {
@@ -47,19 +48,21 @@ export default function CreatePassword() {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
-      try {
+    try {
+      // Api call
+      const data = await register(name, username, email, password);
+      if (data.status) {
         router.push({
           pathname: "/(auth)/verify-email",
           params: { name, username, email, password },
         });
-      } catch (error: any) {
-        setIsError(true);
-        setErrorMessage(error.message);
-      } finally {
-        setIsLoading(false);
       }
-    }, 1000);
+    } catch (error: any) {
+      setIsError(true);
+      setErrorMessage(error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -139,7 +142,7 @@ export default function CreatePassword() {
                 secureTextEntry={!showConfirmPassword}
                 autoCorrect={false}
                 editable={!isLoading}
-                onSubmitEditing={() => !isInvalidPassword && handleRegister()}
+                onSubmitEditing={() => !isInvalidPassword && handleContinue()}
                 onChangeText={(text) => {
                   setIsError(false);
                   const sanitized = text.replace(
@@ -168,7 +171,7 @@ export default function CreatePassword() {
               (isInvalidPassword || isLoading || isError) && { opacity: 0.5 }, // dim button when disabled
             ]}
             title={!isLoading && "Continue"}
-            onPress={handleRegister}
+            onPress={handleContinue}
             disabled={isInvalidPassword || isLoading || isError}
             isLoading={isLoading}
           />

@@ -32,7 +32,7 @@ export async function existEmail(email) {
         email,
       },
     });
-    return response.data.result;
+    return response.data;
   } catch (error) {
     throw error;
   }
@@ -46,7 +46,22 @@ export async function existUsername(username) {
         username,
       },
     });
-    return response.data.result;
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Register
+export async function register(name, username, email, password) {
+  try {
+    const response = await api.post("/api/user/register", {
+      name,
+      username,
+      email,
+      password,
+    });
+    return response.data;
   } catch (error) {
     throw error;
   }

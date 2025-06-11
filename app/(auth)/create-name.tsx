@@ -20,7 +20,6 @@ export default function CreateName() {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [isInvalidName, setIsInvalidName] = useState(false);
-  const [isExistUsername, setIsExistUsername] = useState(false);
   const [isInvalidUsername, setIsInvalidUsername] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -48,7 +47,8 @@ export default function CreateName() {
     setIsLoading(true);
 
     try {
-      if (await existUsername(username)) {
+      const data = await existUsername(username);
+      if (data.status) {
         setIsError(true);
         setErrorMessage("Username already exists!");
         return;
