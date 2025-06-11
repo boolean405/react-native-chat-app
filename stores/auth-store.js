@@ -23,12 +23,27 @@ export async function clearUserData() {
   await SecureStore.deleteItemAsync("accessToken");
 }
 
-// start api
-export async function existUser(email) {
+// Start api
+// Check user exist or not
+export async function existEmail(email) {
   try {
-    const response = await api.get("/api/user/exist-user", {
+    const response = await api.get("/api/user/exist-email", {
       params: {
         email,
+      },
+    });
+    return response.data.result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Check username exist or not
+export async function existUsername(username) {
+  try {
+    const response = await api.get("/api/user/exist-username", {
+      params: {
+        username,
       },
     });
     return response.data.result;

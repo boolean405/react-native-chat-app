@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedButton } from "@/components/ThemedButton";
+import { existUsername } from "@/stores/auth-store";
 
 export default function CreateName() {
   const [name, setName] = useState("");
@@ -32,8 +33,8 @@ export default function CreateName() {
   const { email } = useLocalSearchParams();
 
   useEffect(() => {
-    const validName = (str: string) => /^[A-Za-z0-9 ]{1,30}$/.test(str);
-    const validUsername = (str: string) => /^[a-z0-9]{6,20}$/.test(str);
+    const validName = (str: string) => /^[\p{L}\p{M}0-9\s]{1,20}$/u.test(str);
+    const validUsername = (str: string) => /^[a-z0-9]{5,20}$/.test(str);
 
     validName(name) ? setIsInvalidName(false) : setIsInvalidName(true);
 
@@ -42,32 +43,27 @@ export default function CreateName() {
       : setIsInvalidUsername(true);
   }, [name, username]);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     Keyboard.dismiss();
     setIsLoading(true);
 
-    setTimeout(() => {
-      try {
-        const dbUsername = "boolean405";
-
-        // Check for name mismatch
-        if (username === dbUsername) {
-          setIsError(true);
-          setErrorMessage("Username already exists!");
-          return;
-        }
-
-        router.push({
-          pathname: "/(auth)/create-password",
-          params: { name, username, email },
-        });
-      } catch (error: any) {
+    try {
+      if (await existUsername(username)) {
         setIsError(true);
-        setErrorMessage(error.message);
-      } finally {
-        setIsLoading(false);
+        setErrorMessage("Username already exists!");
+        return;
       }
-    }, 1000);
+
+      router.push({
+        pathname: "/(auth)/create-password",
+        params: { name, username, email },
+      });
+    } catch (error: any) {
+      setIsError(true);
+      setErrorMessage(error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -98,7 +94,12 @@ export default function CreateName() {
                 editable={!isLoading}
                 onBlur={() => setName(name.trim())}
                 onChangeText={(text) => {
-                  const sanitized = text.replace(/[^A-Za-z ]/g, "");
+                  let sanitized = text.replace(/[^\p{L}\p{M}\s]/gu, "");
+
+                  // Step 2: Remove leading spaces
+                  sanitized = sanitized.replace(/^\s+/, "");
+
+                  // Step 3: Update state to display text (this is essential)
                   setName(sanitized);
                 }}
               />

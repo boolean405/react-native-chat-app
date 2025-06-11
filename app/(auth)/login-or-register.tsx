@@ -15,7 +15,7 @@ import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Ionicons } from "@expo/vector-icons";
-import { existUser } from "@/stores/auth-store";
+import { existEmail } from "@/stores/auth-store";
 
 export default function LoginOrRegister() {
   const [email, setEmail] = useState("");
@@ -43,9 +43,7 @@ export default function LoginOrRegister() {
     setIsLoading(true);
     try {
       // api call
-      const result = await existUser(email);
-
-      if (result) {
+      if (await existEmail(email)) {
         router.push({
           pathname: "/(auth)/login-password",
           params: { email },
