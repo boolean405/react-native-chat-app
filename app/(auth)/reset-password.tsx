@@ -52,7 +52,7 @@ export default function ResetPassword() {
     setIsLoading(true);
     try {
       const data = await resetPassword(email, password);
-      if (data.status) router.replace("/(tabs)");
+      if (data.status) router.replace("/(tab)");
     } catch (error: any) {
       setIsError(true);
       setErrorMessage(error);

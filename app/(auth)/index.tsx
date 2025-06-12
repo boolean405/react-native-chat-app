@@ -36,7 +36,7 @@ export default function FlashScreen() {
     const checkAuth = async () => {
       const user = await getUserData();
       setTimeout(() => {
-        router.replace(user ? "/(tabs)" : "/(auth)/login-or-register");
+        router.replace(user ? "/(tab)" : "/(auth)/login-or-register");
       }, 1000);
     };
     checkAuth();

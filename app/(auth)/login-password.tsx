@@ -15,15 +15,15 @@ import {
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { saveUserData } from "@/stores/authStore";
 import { Ionicons } from "@expo/vector-icons";
-import { forgotPassword } from "@/services/api";
+import { forgotPassword, login } from "@/services/api";
 
 export default function LoginPassword() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isInvalidPassword, setIsInvalidPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -41,7 +41,7 @@ export default function LoginPassword() {
 
   const handleForgotPassword = async () => {
     // Api code here
-    setIsLoading(true);
+    setLoading(true);
     try {
       const data = await forgotPassword(email);
       if (data.status) {
@@ -54,7 +54,7 @@ export default function LoginPassword() {
       setIsError(true);
       setErrorMessage(error);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -64,38 +64,14 @@ export default function LoginPassword() {
     // API code here
     setIsLoading(true);
     try {
+      const data = await login(email, password);
+      data.status && router.replace("/(tab)");
     } catch (error: any) {
       setIsError(true);
       setErrorMessage(error);
     } finally {
       setIsLoading(false);
     }
-
-    setTimeout(async () => {
-      const serverUser = {
-        name: "Boolean",
-        username: "boolean405",
-        email: "boolean405@gmail.com",
-        password: "11111111",
-      };
-      if (password !== serverUser.password) {
-        setIsError(true);
-        setErrorMessage("Incorrect password");
-        setIsLoading(false);
-        return;
-      }
-
-      const user = {
-        name: serverUser.name,
-        username: serverUser.username,
-        email: serverUser.email,
-        password: serverUser.password,
-        accessToken: `1234/${email}/1234`,
-      };
-      await saveUserData(user, user.accessToken);
-      router.replace("/(tabs)");
-      setIsLoading(false);
-    }, 1000);
   };
 
   return (
@@ -165,10 +141,12 @@ export default function LoginPassword() {
           />
           <ThemedView style={styles.forgotPasswordContainer}>
             <TouchableOpacity
-              disabled={isLoading}
+              disabled={isLoading || loading}
               onPress={handleForgotPassword}
             >
-              <ThemedText type="defaultItalic">Forgot password?</ThemedText>
+              <ThemedText type="defaultItalic">
+                {loading ? "Processing..." : "Forgot password?"}
+              </ThemedText>
             </TouchableOpacity>
           </ThemedView>
         </ThemedView>

@@ -125,7 +125,7 @@ const EditProfile: React.FC = () => {
         };
 
         await saveUserData(updateUser, updateUser.accessToken);
-        router.push("/(tabs)");
+        router.push("/(tab)");
       } catch (error: any) {
         setIsError(true);
         setErrorMessage(error.message);
