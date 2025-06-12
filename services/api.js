@@ -48,7 +48,7 @@ export async function register(name, username, email, password) {
 }
 
 // Verify email
-export async function verify(email, code) {
+export async function registerVerify(email, code) {
   try {
     const response = await api.post("/api/user/verify", {
       email,
@@ -92,11 +92,11 @@ export async function forgotPasswordVerify(email, code) {
 }
 
 // Reset password
-export async function resetPassword(password, token) {
+export async function resetPassword(email, password) {
   try {
-    const response = await api.post("/api/user/reset-password", {
-      password,
-      token,
+    const response = await api.patch("/api/user/reset-password", {
+      email,
+      newPassword: password,
     });
     const data = response.data;
     // Save user data to localstorage

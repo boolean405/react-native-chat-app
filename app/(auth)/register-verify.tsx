@@ -13,7 +13,7 @@ import {
 
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { register, verify } from "@/services/api";
+import { register, registerVerify } from "@/services/api";
 
 export default function VerifyEmailScreen() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
@@ -78,7 +78,7 @@ export default function VerifyEmailScreen() {
         // Api code here
         setIsLoading(true);
         try {
-          const data = await verify(email, code);
+          const data = await registerVerify(email, code);
           if (data.status) {
             setIsVerified(true);
             await new Promise((r) => setTimeout(r, 1e3));

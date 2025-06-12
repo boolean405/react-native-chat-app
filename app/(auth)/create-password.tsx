@@ -53,7 +53,7 @@ export default function CreatePassword() {
       const data = await register(name, username, email, password);
       if (data.status) {
         router.push({
-          pathname: "/(auth)/verify-email",
+          pathname: "/(auth)/register-verify",
           params: { name, username, email, password },
         });
       }
