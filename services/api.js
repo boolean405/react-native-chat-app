@@ -1,8 +1,7 @@
 import api from "../config/axios";
-import { getAccessToken, saveUserData } from "../stores/authStore";
+import { jwtDecode } from "jwt-decode";
 
-// const BASE_URL = process.env.EXPO_PUBLIC_SERVER_URL;
-// const USER_API_URL = `${BASE_URL}/api/user`;
+import { getAccessToken, saveUserData } from "../stores/authStore";
 
 // Check user exist or not
 export async function existEmail(email) {
@@ -165,24 +164,32 @@ export async function uploadPhoto(profilePhoto, coverPhoto) {
   }
 }
 
-// Refresh token
+// Refresh access token
 export async function refresh() {
   try {
-    const response = await api.post("/api/user/refresh");
-    const data = response.data;
-    // Save user data to localstorage
-    if (data.status)
-      await saveUserData(data.result.user, data.result.accessToken);
+    const accessToken = await getAccessToken();
+    if (accessToken) {
+      const decoded = jwtDecode(accessToken);
 
-    return data.result.accessToken;
+      if (decoded.exp < Date.now() / 1000) {
+        const response = await api.post("/api/user/refresh");
+        const data = response.data;
+        // Save user data to localstorage
+        if (data.status)
+          await saveUserData(data.result.user, data.result.accessToken);
+        return data.result.accessToken;
+      }
+    }
+    return accessToken;
   } catch (error) {
     throw error.response?.data?.message;
   }
 }
 
-// edit profile
+// Edit profile
 export async function editProfile() {
   try {
+    await refresh();
     const response = await api.patch("/api/user/edit-profile");
     const data = response.data;
 
