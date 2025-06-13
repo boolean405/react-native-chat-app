@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import React, { useState, useEffect } from "react";
 import * as ImagePicker from "expo-image-picker";
 import {
@@ -14,6 +15,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedButton } from "@/components/ThemedButton";
 import { getUserData } from "@/stores/authStore";
+import { uploadPhoto } from "@/services/api";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -21,11 +23,14 @@ export default function UploadPhoto() {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [coverPhoto, setCoverPhoto] = useState<string | null>(null);
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
 
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? "light"];
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -56,16 +61,24 @@ export default function UploadPhoto() {
     requestPermission();
   }, []);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    if (!setProfilePhoto && !coverPhoto) {
+      router.replace("/(tab)");
+      return;
+    }
+
+    // Api call
     setIsLoading(true);
-    setTimeout(() => {
-      try {
-        // api here
-      } catch (error: any) {
-      } finally {
-        setIsLoading(false);
-      }
-    }, 1000);
+    try {
+      const data = await uploadPhoto(profilePhoto, coverPhoto);
+      data.status && router.replace("/(tab)");
+    } catch (error: any) {
+      setIsError(true);
+      setErrorMessage(error);
+      Alert.alert("Upload Error", errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const pickImage = async (
@@ -80,11 +93,17 @@ export default function UploadPhoto() {
         quality: 1,
       });
 
-      if (!result.canceled) {
+      if (!result.canceled && result.assets?.length) {
         setImage(result.assets[0].uri);
+      } else {
+        console.warn("No image selected or result malformed:", result);
       }
-    } catch (error) {
+    } catch (error: any) {
+      setIsError(true);
+      const message = error?.message || "Unknown error";
       console.error("Image Picker Error:", error);
+      setErrorMessage(message);
+      Alert.alert("Image Picker Error", message);
     }
   };
 

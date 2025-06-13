@@ -1,3 +1,4 @@
+import api from "@/config/axios";
 import * as SecureStore from "expo-secure-store";
 
 export async function saveUserData(user, accessToken) {
@@ -10,6 +11,10 @@ export async function getUserData() {
   return user ? JSON.parse(user) : null;
 }
 
+export async function saveAccessToken(accessToken) {
+  return await SecureStore.setItemAsync("accessToken", accessToken);
+}
+
 export async function getAccessToken() {
   return await SecureStore.getItemAsync("accessToken");
 }
@@ -19,67 +24,30 @@ export async function clearUserData() {
   await SecureStore.deleteItemAsync("accessToken");
 }
 
-// export async function register(name, username, email, password) {
+// export async function getAccessToken() {
+//   let accessToken = await SecureStore.getItemAsync("accessToken");
+//   if (!accessToken) return null;
+
 //   try {
-//     const response = await api.post(`${USER_API_URL}/register`, {
-//       name,
-//       username,
-//       email,
-//       password,
-//     });
-//     console.log(response);
-//     console.log(response.data);
-//     console.log(response.data.result);
+//     // Check if token is expired
+//     const decoded = JSON.parse(atob(accessToken.split(".")[1]));
+//     const isExpired = Date.now() >= decoded.exp * 1000;
+//     if (!isExpired) {
+//       console.log("Token is not expired, old token", accessToken);
+//       return accessToken;
+//     }else{
+//       console.log("Token is expired,");
 
-//     return response.data;
-//   } catch (error) {
-//     throw error;
-//   }
-// }
-
-// // Setup axios instance with auth header automatically
-// export async function axiosInstance() {
-//   const token = await getAccessToken();
-
-//   const instance = axios.create({
-//     baseURL: API_URL,
-//     headers: {
-//       Authorization: `Bearer ${token}`,
-//     },
-//     withCredentials: true, // important for refresh token cookie
-//   });
-
-//   // Response interceptor to handle 401 and refresh token
-//   instance.interceptors.response.use(
-//     (response) => response,
-//     async (error) => {
-//       if (error.response?.status === 401) {
-//         // Try refreshing token
-//         const success = await refreshAccessToken();
-//         if (success) {
-//           error.config.headers.Authorization = `Bearer ${await getAccessToken()}`;
-//           return instance(error.config); // retry original request
-//         }
-//       }
-//       return Promise.reject(error);
 //     }
-//   );
+//   } catch (e) {}
 
-//   return instance;
-// }
+// // Refresh token
+// const BASE_URL = process.env.EXPO_PUBLIC_SERVER_URL;
+// const response = await api.post(`${BASE_URL}/api/user/refresh`);
+// const data = response.data;
+// await SecureStore.setItemAsync("accessToken", data.result.accessToken);
+// console.log("Token is expired, new token", data.result.accessToken);
 
-// // Refresh access token using refresh token cookie
-// async function refreshAccessToken() {
-//   try {
-//     const response = await axios.get(`${API_URL}/api/user/refresh`, {
-//       withCredentials: true,
-//     });
-//     const { accessToken, user } = response.data;
-
-//     await saveUserData(user, accessToken);
-//     return true;
-//   } catch (e) {
-//     await clearUserData();
-//     return false;
-//   }
+// return data.result.accessToken;
+//   return accessToken;
 // }

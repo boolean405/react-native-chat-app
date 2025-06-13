@@ -43,14 +43,7 @@ const MENUS: {
 export default function Menu() {
   const [copiedText, setCopiedText] = useState("");
   const [refreshing, setRefreshing] = useState(false);
-  const [user, setUser] = useState({
-    name: "",
-    username: "",
-    email: "",
-    password: "",
-    accessToken: "",
-    profilePhoto: "",
-  });
+  const [user, setUser] = useState<any>(null);
 
   const colorScheme = useColorScheme();
   const colors = colorScheme === "dark" ? Colors.dark : Colors.light;
@@ -66,13 +59,7 @@ export default function Menu() {
 
   // Fetch user data from SecureStore when component mounts
   async function fetchUserData() {
-    try {
-      setUser(await getUserData());
-
-      console.log(user);
-    } catch (e) {
-      console.log("Error fetching user data:", e);
-    }
+    setUser(await getUserData());
   }
 
   const handleUsernameCopied = (username: string) => {
