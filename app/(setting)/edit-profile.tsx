@@ -20,7 +20,8 @@ import { ThemedText } from "@/components/ThemedText";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedButton } from "@/components/ThemedButton";
-import { getUserData, saveUserData } from "@/stores/authStore";
+import { getUserData } from "@/stores/authStore";
+import { editProfile } from "@/services/api";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -33,10 +34,11 @@ const EditProfile: React.FC = () => {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [profilePhoto, setProfileImage] = useState<string | null>(null);
-  const [coverImage, setCoverImage] = useState<string | null>(null);
+  const [coverPhoto, setCoverImage] = useState<string | null>(null);
 
   const [isInvalidName, setIsInvalidName] = useState(false);
   const [isInvalidUsername, setIsInvalidUsername] = useState(false);
+  const [isExistUsername, setIsExistUsername] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -49,7 +51,7 @@ const EditProfile: React.FC = () => {
           setName(userData.name || "");
           setUsername(userData.username || "");
           setProfileImage(userData.profilePhoto || null); // if you have it saved
-          setCoverImage(userData.coverImage || null); // if you have it saved
+          setCoverImage(userData.coverPhoto || null); // if you have it saved
         }
       } catch (error) {
         console.error("Failed to load user data:", error);
@@ -61,8 +63,8 @@ const EditProfile: React.FC = () => {
 
   useEffect(() => {
     const validateInputs = () => {
-      setIsInvalidName(!/^[A-Za-z0-9 ]{1,30}$/.test(name));
-      setIsInvalidUsername(!/^[a-z0-9]{6,20}$/.test(username));
+      setIsInvalidName(!/^[A-Za-z0-9 ]{1,20}$/.test(name));
+      setIsInvalidUsername(!/^[a-z0-9]{5,20}$/.test(username));
     };
     validateInputs();
   }, [name, username]);
@@ -87,7 +89,7 @@ const EditProfile: React.FC = () => {
   ) => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ["images"],
+        mediaTypes: "images",
         allowsEditing: true,
         aspect,
         quality: 1,
@@ -103,36 +105,46 @@ const EditProfile: React.FC = () => {
 
   const handleContinue = async () => {
     Keyboard.dismiss();
+
+    // Api call
     setIsLoading(true);
-    console.log(profilePhoto);
+    try {
+      const data = await editProfile(name, username, profilePhoto, coverPhoto);
+      // console.log("datda", data.message);
 
-    setTimeout(async () => {
-      try {
-        const dbUsername = "boolean405";
+      // if (data.status) {
+      //   Alert.alert("Success", data.message);
+      //   router.back();
+      //   return;
+      // }
 
-        if (username === dbUsername) {
-          setIsError(true);
-          setErrorMessage("Username already exists!");
-          return;
-        }
+      // console.log("client data", data);
 
-        const updateUser = {
-          name,
-          username,
-          profilePhoto,
-          coverImage,
-          accessToken: `1234/${username}/1234`,
-        };
+      // const dbUsername = "boolean405";
 
-        await saveUserData(updateUser, updateUser.accessToken);
-        router.push("/(tab)");
-      } catch (error: any) {
-        setIsError(true);
-        setErrorMessage(error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    }, 1000);
+      // if (username === dbUsername) {
+      //   setIsError(true);
+      //   setErrorMessage("Username already exists!");
+      //   return;
+      // }
+
+      // const updateUser = {
+      //   name,
+      //   username,
+      //   profilePhoto,
+      //   coverPhoto,
+      //   accessToken: `1234/${username}/1234`,
+      // };
+
+      // await saveUserData(updateUser, updateUser.accessToken);
+      // router.push("/(tab)");
+    } catch (error: any) {
+      setIsError(true);
+      setErrorMessage(error.message);
+      Alert.alert("Error", error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -149,10 +161,10 @@ const EditProfile: React.FC = () => {
       >
         {/* Cover Image */}
         <TouchableOpacity onPress={() => pickImage(setCoverImage, [2, 1])}>
-          {coverImage ? (
+          {coverPhoto ? (
             <Image
-              source={{ uri: coverImage }}
-              style={[styles.coverImage, { backgroundColor: theme.background }]}
+              source={{ uri: coverPhoto }}
+              style={[styles.coverPhoto, { backgroundColor: theme.background }]}
             />
           ) : (
             <ThemedView
@@ -213,7 +225,9 @@ const EditProfile: React.FC = () => {
               editable={!isLoading}
               onBlur={() => setName(name.trim())}
               onChangeText={(text) => {
-                const sanitized = text.replace(/[^A-Za-z ]/g, "");
+                const sanitized = text
+                  .replace(/^\s+/, "") // Remove leading spaces
+                  .replace(/[^A-Za-z\s]/g, ""); // Remove all non-letter characters
                 setName(sanitized);
               }}
             />
@@ -223,7 +237,7 @@ const EditProfile: React.FC = () => {
           <ThemedView
             style={[
               styles.inputContainer,
-              { borderColor: isError ? "red" : color },
+              { borderColor: isExistUsername ? "red" : color },
             ]}
           >
             <Ionicons name="at-outline" size={24} style={{ color }} />
@@ -250,9 +264,10 @@ const EditProfile: React.FC = () => {
             />
           </ThemedView>
 
-          {isError && (
-            <ThemedText style={{ color: "red" }}>{errorMessage}</ThemedText>
-          )}
+          {isExistUsername ||
+            (isError && (
+              <ThemedText style={{ color: "red" }}>{errorMessage}</ThemedText>
+            ))}
 
           <ThemedButton
             style={[
@@ -282,7 +297,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     flexGrow: 1,
   },
-  coverImage: {
+  coverPhoto: {
     width: screenWidth,
     height: 180,
   },

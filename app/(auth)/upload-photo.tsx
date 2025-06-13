@@ -1,21 +1,21 @@
-import { useRouter } from "expo-router";
-import React, { useState, useEffect } from "react";
 import * as ImagePicker from "expo-image-picker";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
-  Image,
-  TouchableOpacity,
-  StyleSheet,
   Alert,
   Dimensions,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
   useColorScheme,
 } from "react-native";
 
-import { Colors } from "@/constants/Colors";
-import { ThemedView } from "@/components/ThemedView";
-import { ThemedText } from "@/components/ThemedText";
 import { ThemedButton } from "@/components/ThemedButton";
-import { getUserData } from "@/stores/authStore";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { Colors } from "@/constants/Colors";
 import { uploadPhoto } from "@/services/api";
+import { getUserData } from "@/stores/authStore";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -75,7 +75,7 @@ export default function UploadPhoto() {
     } catch (error: any) {
       setIsError(true);
       setErrorMessage(error);
-      Alert.alert("Upload Error", errorMessage);
+      Alert.alert("Upload Error", error.message);
     } finally {
       setIsLoading(false);
     }
@@ -157,6 +157,11 @@ export default function UploadPhoto() {
         {name}
       </ThemedText>
       <ThemedText type="subtitle">{username && `@${username}`}</ThemedText>
+      {isError && (
+        <ThemedText style={{ color: "red", marginTop: 10 }}>
+          {errorMessage}
+        </ThemedText>
+      )}
 
       <ThemedButton
         style={[styles.button, isLoading && { opacity: 0.5 }]}
