@@ -204,25 +204,22 @@ export async function refresh() {
   }
 }
 
-// Edit profile
-export async function editProfile(name, username, profilePhoto, coverPhoto) {
+// Edit profile change names
+export async function changeNames(name, username) {
   try {
+    await refresh();
     const user = await getUserData();
     const payload = {};
 
     if (name && user.name !== name) payload.name = name;
     if (username && user.username !== username) payload.username = username;
-    if (profilePhoto && user.profilePhoto !== profilePhoto)
-      payload.profilePhoto = profilePhoto;
-    if (coverPhoto && user.coverPhoto !== coverPhoto)
-      payload.coverPhoto = coverPhoto;
 
     if (Object.keys(payload).length === 0) {
       throw new Error("Nothing to update!");
     }
 
     await refresh();
-    const response = await api.patch("/api/user/edit-profile", payload);
+    const response = await api.patch("/api/user/change-names", payload);
     const data = response.data;
 
     // Save user data to localstorage
@@ -235,3 +232,33 @@ export async function editProfile(name, username, profilePhoto, coverPhoto) {
     throw new Error(message);
   }
 }
+// export async function editProfile(name, username, profilePhoto, coverPhoto) {
+//   try {
+//     const user = await getUserData();
+//     const payload = {};
+
+//     if (name && user.name !== name) payload.name = name;
+//     if (username && user.username !== username) payload.username = username;
+//     if (profilePhoto && user.profilePhoto !== profilePhoto)
+//       payload.profilePhoto = profilePhoto;
+//     if (coverPhoto && user.coverPhoto !== coverPhoto)
+//       payload.coverPhoto = coverPhoto;
+
+//     if (Object.keys(payload).length === 0) {
+//       throw new Error("Nothing to update!");
+//     }
+
+//     await refresh();
+//     const response = await api.patch("/api/user/edit-profile", payload);
+//     const data = response.data;
+
+//     // Save user data to localstorage
+//     await saveUserData(data.result.user);
+
+//     return data;
+//   } catch (error) {
+//     const message =
+//       error.message || error.response?.data?.message || "Something went wrong";
+//     throw new Error(message);
+//   }
+// }

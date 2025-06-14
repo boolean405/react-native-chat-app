@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   TextInput,
-  Button,
   Image,
   TouchableOpacity,
   StyleSheet,
@@ -21,7 +20,7 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedButton } from "@/components/ThemedButton";
 import { getUserData } from "@/stores/authStore";
-import { editProfile } from "@/services/api";
+import { changeNames } from "@/services/api";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -35,13 +34,13 @@ const EditProfile: React.FC = () => {
   const [username, setUsername] = useState("");
   const [profilePhoto, setProfileImage] = useState<string | null>(null);
   const [coverPhoto, setCoverImage] = useState<string | null>(null);
-
   const [isInvalidName, setIsInvalidName] = useState(false);
   const [isInvalidUsername, setIsInvalidUsername] = useState(false);
   const [isExistUsername, setIsExistUsername] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [canChange, setCanChange] = useState(false);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -62,7 +61,14 @@ const EditProfile: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const validateInputs = () => {
+    const validateInputs = async () => {
+      const user = await getUserData();
+      if (user.name !== name || user.username !== username) {
+        setCanChange(true);
+      } else {
+        setCanChange(false);
+      }
+
       setIsInvalidName(!/^[A-Za-z0-9 ]{1,20}$/.test(name));
       setIsInvalidUsername(!/^[a-z0-9]{5,20}$/.test(username));
     };
@@ -109,34 +115,15 @@ const EditProfile: React.FC = () => {
     // Api call
     setIsLoading(true);
     try {
-      const data = await editProfile(name, username, profilePhoto, coverPhoto);
+      const data = await changeNames(name, username);
+
       // console.log("datda", data.message);
 
-      // if (data.status) {
-      //   Alert.alert("Success", data.message);
-      //   router.back();
-      //   return;
-      // }
-
-      // console.log("client data", data);
-
-      // const dbUsername = "boolean405";
-
-      // if (username === dbUsername) {
-      //   setIsError(true);
-      //   setErrorMessage("Username already exists!");
-      //   return;
-      // }
-
-      // const updateUser = {
-      //   name,
-      //   username,
-      //   profilePhoto,
-      //   coverPhoto,
-      //   accessToken: `1234/${username}/1234`,
-      // };
-
-      // await saveUserData(updateUser, updateUser.accessToken);
+      if (data.status) {
+        Alert.alert("Success", data.message);
+        router.back();
+        return;
+      }
       // router.push("/(tab)");
     } catch (error: any) {
       setIsError(true);
@@ -161,54 +148,86 @@ const EditProfile: React.FC = () => {
       >
         {/* Cover Image */}
         <TouchableOpacity onPress={() => pickImage(setCoverImage, [2, 1])}>
-          {coverPhoto ? (
-            <Image
-              source={{ uri: coverPhoto }}
-              style={[styles.coverPhoto, { backgroundColor: theme.background }]}
-            />
-          ) : (
-            <ThemedView
-              style={[
-                styles.coverPlaceholder,
-                { backgroundColor: theme.secondary },
-              ]}
-            >
-              <ThemedText style={[styles.addPhotoText, { color: theme.text }]}>
-                Add Cover Photo
-              </ThemedText>
-            </ThemedView>
-          )}
+          <ThemedView>
+            {coverPhoto ? (
+              <>
+                <Image
+                  source={{ uri: coverPhoto }}
+                  style={[
+                    styles.coverPhoto,
+                    { backgroundColor: theme.background },
+                  ]}
+                />
+                <TouchableOpacity
+                  style={styles.deleteIconCover}
+                  onPress={() => setCoverImage(null)}
+                >
+                  <Ionicons name="trash-outline" size={24} color="red" />
+                </TouchableOpacity>
+              </>
+            ) : (
+              <ThemedView
+                style={[
+                  styles.coverPlaceholder,
+                  { backgroundColor: theme.secondary },
+                ]}
+              >
+                <ThemedText
+                  style={[styles.addPhotoText, { color: theme.text }]}
+                >
+                  Add Cover Photo
+                </ThemedText>
+              </ThemedView>
+            )}
+          </ThemedView>
         </TouchableOpacity>
 
         {/* Profile Image */}
-        <TouchableOpacity
-          onPress={() => pickImage(setProfileImage, [1, 1])}
-          style={[
-            styles.profileImageWrapper,
-            { borderColor: theme.borderColor },
-          ]}
-        >
-          {profilePhoto ? (
-            <Image source={{ uri: profilePhoto }} style={styles.profilePhoto} />
-          ) : (
-            <ThemedView
-              style={[
-                styles.profilePlaceholder,
-                { backgroundColor: theme.secondary },
-              ]}
+        <ThemedView style={{ position: "relative" }}>
+          <TouchableOpacity
+            onPress={() => pickImage(setProfileImage, [1, 1])}
+            style={[
+              styles.profileImageWrapper,
+              { borderColor: theme.borderColor },
+            ]}
+          >
+            {profilePhoto ? (
+              <Image
+                source={{ uri: profilePhoto }}
+                style={styles.profilePhoto}
+              />
+            ) : (
+              <ThemedView
+                style={[
+                  styles.profilePlaceholder,
+                  { backgroundColor: theme.secondary },
+                ]}
+              >
+                <ThemedText
+                  style={[styles.addPhotoText, { color: theme.text }]}
+                >
+                  Add Profile Photo
+                </ThemedText>
+              </ThemedView>
+            )}
+          </TouchableOpacity>
+          {profilePhoto && (
+            <TouchableOpacity
+              style={styles.deleteIconProfile}
+              onPress={() => setProfileImage(null)}
             >
-              <ThemedText style={[styles.addPhotoText, { color: theme.text }]}>
-                Add Profile Photo
-              </ThemedText>
-            </ThemedView>
+              <Ionicons name="trash-outline" size={24} color="red" />
+            </TouchableOpacity>
           )}
-        </TouchableOpacity>
+        </ThemedView>
 
         {/* Inputs and Button */}
         <ThemedView style={styles.bottomContainer}>
           <ThemedText type="title">{name}</ThemedText>
+          <ThemedText type="subtitle">{username && `@${username}`}</ThemedText>
+
           <ThemedText type="subtitle" style={styles.titleText}>
-            {username && `@${username}`}
+            Edit your profile
           </ThemedText>
 
           {/* Name Input */}
@@ -225,6 +244,7 @@ const EditProfile: React.FC = () => {
               editable={!isLoading}
               onBlur={() => setName(name.trim())}
               onChangeText={(text) => {
+                setIsError(false);
                 const sanitized = text
                   .replace(/^\s+/, "") // Remove leading spaces
                   .replace(/[^A-Za-z\s]/g, ""); // Remove all non-letter characters
@@ -272,14 +292,24 @@ const EditProfile: React.FC = () => {
           <ThemedButton
             style={[
               styles.button,
-              (isInvalidUsername || isInvalidName || isLoading || isError) && {
+              (isInvalidUsername ||
+                isInvalidName ||
+                isLoading ||
+                isError ||
+                isExistUsername ||
+                !canChange) && {
                 opacity: 0.5,
               },
             ]}
-            title={!isLoading && "Continue"}
+            title={!isLoading && "Change names"}
             onPress={handleContinue}
             disabled={
-              isInvalidUsername || isInvalidName || isLoading || isError
+              isInvalidUsername ||
+              isInvalidName ||
+              isLoading ||
+              isError ||
+              isExistUsername ||
+              !canChange
             }
             isLoading={isLoading}
           />
@@ -334,7 +364,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   titleText: {
-    marginBottom: 50,
+    marginVertical: 30,
   },
   inputContainer: {
     flexDirection: "row",
@@ -353,5 +383,21 @@ const styles = StyleSheet.create({
   button: {
     width: "80%",
     marginTop: 10,
+  },
+  deleteIconCover: {
+    position: "absolute",
+    top: 50,
+    right: 20,
+    backgroundColor: "gray",
+    borderRadius: 12,
+  },
+
+  deleteIconProfile: {
+    position: "absolute",
+    top: -5,
+    right: -5,
+    backgroundColor: "gray",
+    borderRadius: 12,
+    zIndex: 2,
   },
 });
