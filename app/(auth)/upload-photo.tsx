@@ -1,10 +1,12 @@
-import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
+import * as FileSystem from "expo-file-system";
+import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
   Dimensions,
   Image,
+  Platform,
   StyleSheet,
   TouchableOpacity,
   useColorScheme,
@@ -14,8 +16,10 @@ import { uploadPhoto } from "@/api/user";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { colors } from "@/constants/colors";
+import { Colors } from "@/constants/colors";
 import { getUserData } from "@/storage/authStorage";
+import { Ionicons } from "@expo/vector-icons";
+import getImageMimeType from "@/utils/getImageMimeType";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -27,9 +31,13 @@ export default function UploadPhoto() {
   const [errorMessage, setErrorMessage] = useState("");
   const [coverPhoto, setCoverPhoto] = useState<string | null>(null);
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [profilePhotoBase64, setProfilePhotoBase64] = useState<string | null>(
+    null
+  );
+  const [coverPhotoBase64, setCoverPhotoBase64] = useState<string | null>(null);
 
   const colorScheme = useColorScheme();
-  const theme = colors[colorScheme ?? "light"];
+  const color = Colors[colorScheme ?? "light"];
   const router = useRouter();
 
   useEffect(() => {
@@ -62,7 +70,7 @@ export default function UploadPhoto() {
   }, []);
 
   const handleContinue = async () => {
-    if (!setProfilePhoto && !coverPhoto) {
+    if (!profilePhoto && !coverPhoto) {
       router.replace("/(tab)");
       return;
     }
@@ -70,7 +78,20 @@ export default function UploadPhoto() {
     // Api call
     setIsLoading(true);
     try {
-      const data = await uploadPhoto(profilePhoto, coverPhoto);
+      const profileImageType = getImageMimeType(profilePhoto);
+      const coverImageType = getImageMimeType(coverPhoto);
+
+      const profilePhotoUrl =
+        profilePhoto && profilePhotoBase64
+          ? `data:${profileImageType};base64,${profilePhotoBase64}`
+          : undefined;
+
+      const coverPhotoUrl =
+        coverPhoto && coverPhotoBase64
+          ? `data:${coverImageType};base64,${coverPhotoBase64}`
+          : undefined;
+
+      const data = await uploadPhoto(profilePhotoUrl, coverPhotoUrl);
       data.status && router.replace("/(tab)");
     } catch (error: any) {
       setIsError(true);
@@ -81,26 +102,58 @@ export default function UploadPhoto() {
     }
   };
 
+  const handleRemoveCover = () => {
+    setCoverPhoto(null);
+  };
+
+  const handleRemoveProfile = () => {
+    setProfilePhoto(null);
+  };
+
   const pickImage = async (
     setImage: React.Dispatch<React.SetStateAction<string | null>>,
+    setImageBase64: React.Dispatch<React.SetStateAction<string | null>>,
     aspect?: [number, number]
   ) => {
     try {
+      if (Platform.OS !== "web") {
+        const { status } =
+          await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if (status !== "granted") {
+          Alert.alert("Permission Required", "Please allow media access!");
+          return;
+        }
+      }
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: "images",
         allowsEditing: true,
         aspect,
-        quality: 1,
+        quality: 0.5,
+        base64: true,
       });
 
       if (!result.canceled && result.assets?.length) {
         setImage(result.assets[0].uri);
-      } else {
-        console.warn("No image selected or result malformed:", result);
+      }
+
+      if (result && result.assets && result.assets.length) {
+        // if base64 privoided use or covert
+        if (result.assets[0].base64) {
+          setImageBase64(result.assets[0].base64);
+        } else {
+          const base64 = await FileSystem.readAsStringAsync(
+            result.assets[0].uri,
+            {
+              encoding: FileSystem.EncodingType.Base64,
+            }
+          );
+          setImageBase64(base64);
+        }
       }
     } catch (error: any) {
       setIsError(true);
-      const message = error?.message || "Unknown error";
+      const message = error?.message || "Image picker error";
       console.error("Image Picker Error:", error);
       setErrorMessage(message);
       Alert.alert("Image Picker Error", message);
@@ -109,46 +162,63 @@ export default function UploadPhoto() {
 
   return (
     <ThemedView style={[styles.container]}>
-      {/* Cover Image */}
+      {/* Cover photo */}
       <TouchableOpacity
-        onPress={() => !isLoading && pickImage(setCoverPhoto, [2, 1])}
+        onPress={() =>
+          !isLoading && pickImage(setCoverPhoto, setCoverPhotoBase64, [2, 1])
+        }
       >
-        {coverPhoto ? (
-          <Image source={{ uri: coverPhoto }} style={styles.coverPhoto} />
-        ) : (
-          <ThemedView
-            style={[
-              styles.coverPlaceholder,
-              { backgroundColor: theme.secondary },
-            ]}
-          >
-            <ThemedText style={[styles.addPhotoText, { color: theme.text }]}>
-              Add Cover Photo
-            </ThemedText>
-          </ThemedView>
-        )}
+        <ThemedView style={styles.coverPhotoContainer}>
+          {coverPhoto ? (
+            <ThemedView>
+              <Image source={{ uri: coverPhoto }} style={[styles.coverPhoto]} />
+              <TouchableOpacity
+                style={styles.deleteIconCover}
+                onPress={handleRemoveCover}
+              >
+                <Ionicons name="trash-outline" size={24} color="red" />
+              </TouchableOpacity>
+            </ThemedView>
+          ) : (
+            <ThemedView
+              style={[
+                styles.coverPlaceholder,
+                { backgroundColor: color.secondary },
+              ]}
+            >
+              <ThemedText type="small">Add Cover Photo</ThemedText>
+            </ThemedView>
+          )}
+        </ThemedView>
+        {/* )} */}
       </TouchableOpacity>
 
       {/* Profile Image */}
       <TouchableOpacity
-        onPress={() => !isLoading && pickImage(setProfilePhoto, [1, 1])}
+        onPress={() =>
+          !isLoading &&
+          pickImage(setProfilePhoto, setProfilePhotoBase64, [1, 1])
+        }
         style={[styles.profileImageWrapper]}
       >
         {profilePhoto ? (
-          <Image source={{ uri: profilePhoto }} style={styles.profilePhoto} />
+          <>
+            <Image source={{ uri: profilePhoto }} style={styles.profilePhoto} />
+            <TouchableOpacity
+              style={styles.deleteIconProfile}
+              onPress={handleRemoveProfile}
+            >
+              <Ionicons name="trash-outline" size={24} color="red" />
+            </TouchableOpacity>
+          </>
         ) : (
           <ThemedView
             style={[
               styles.profilePlaceholder,
-              {
-                backgroundColor: theme.secondary,
-                borderColor: theme.borderColor,
-              },
+              { backgroundColor: color.secondary },
             ]}
           >
-            <ThemedText style={[styles.addPhotoText, { color: theme.text }]}>
-              Add Profile Photo
-            </ThemedText>
+            <ThemedText type="small">Add Profile Photo</ThemedText>
           </ThemedView>
         )}
       </TouchableOpacity>
@@ -180,22 +250,29 @@ const styles = StyleSheet.create({
     justifyContent: "center", // Center vertically
     alignItems: "center", // Center horizontally
   },
-  coverPhoto: {
+  coverPhotoContainer: {
     width: screenWidth * 0.9,
+    // height: 180,
+    // borderRadius: 12,
+    // marginBottom: 20,
+  },
+
+  coverPhoto: {
+    // width: screenWidth * 0.9,
     height: 180,
-    borderRadius: 12,
-    marginBottom: 20,
+    borderRadius: 15,
+    // marginBottom: 20,
   },
   coverPlaceholder: {
-    width: screenWidth * 0.9,
+    // width: screenWidth * 0.9,
     height: 180,
-    borderRadius: 12,
+    borderRadius: 15,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
+    // marginBottom: 20,
   },
   profileImageWrapper: {
-    marginTop: -50,
+    marginTop: -30,
     borderRadius: 60,
     alignSelf: "center",
   },
@@ -208,12 +285,9 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    borderWidth: 2,
+    // borderWidth: 2,
     justifyContent: "center",
     alignItems: "center",
-  },
-  addPhotoText: {
-    fontSize: 14,
   },
   nameText: {
     marginTop: 20,
@@ -221,5 +295,21 @@ const styles = StyleSheet.create({
   button: {
     width: "80%",
     marginTop: 50,
+  },
+  deleteIconCover: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    // backgroundColor: "gray",
+    // borderRadius: 12,
+  },
+
+  deleteIconProfile: {
+    position: "absolute",
+    right: 45,
+    bottom: 0,
+    // backgroundColor: "gray",
+    // borderRadius: 12,
+    // zIndex: 2,
   },
 });

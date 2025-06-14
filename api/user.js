@@ -18,7 +18,9 @@ export async function existEmail(email) {
     return response.data;
   } catch (error) {
     const message = error.response?.data?.message || "Something went wrong";
-    throw new Error(message);
+    const customError = new Error(message);
+    customError.status = error.response?.status;
+    throw customError;
   }
 }
 
@@ -33,7 +35,9 @@ export async function existUsername(username) {
     return response.data;
   } catch (error) {
     const message = error.response?.data?.message || "Something went wrong";
-    throw new Error(message);
+    const customError = new Error(message);
+    customError.status = error.response?.status;
+    throw customError;
   }
 }
 
@@ -49,7 +53,9 @@ export async function register(name, username, email, password) {
     return response.data;
   } catch (error) {
     const message = error.response?.data?.message || "Something went wrong";
-    throw new Error(message);
+    const customError = new Error(message);
+    customError.status = error.response?.status;
+    throw customError;
   }
 }
 
@@ -68,7 +74,9 @@ export async function registerVerify(email, code) {
     return data;
   } catch (error) {
     const message = error.response?.data?.message || "Something went wrong";
-    throw new Error(message);
+    const customError = new Error(message);
+    customError.status = error.response?.status;
+    throw customError;
   }
 }
 
@@ -81,7 +89,9 @@ export async function forgotPassword(email) {
     return response.data;
   } catch (error) {
     const message = error.response?.data?.message || "Something went wrong";
-    throw new Error(message);
+    const customError = new Error(message);
+    customError.status = error.response?.status;
+    throw customError;
   }
 }
 
@@ -96,7 +106,9 @@ export async function forgotPasswordVerify(email, code) {
     return response.data;
   } catch (error) {
     const message = error.response?.data?.message || "Something went wrong";
-    throw new Error(message);
+    const customError = new Error(message);
+    customError.status = error.response?.status;
+    throw customError;
   }
 }
 
@@ -115,7 +127,9 @@ export async function resetPassword(email, password) {
     return data;
   } catch (error) {
     const message = error.response?.data?.message || "Something went wrong";
-    throw new Error(message);
+    const customError = new Error(message);
+    customError.status = error.response?.status;
+    throw customError;
   }
 }
 
@@ -134,7 +148,9 @@ export async function login(email, password) {
     return data;
   } catch (error) {
     const message = error.response?.data?.message || "Something went wrong";
-    throw new Error(message);
+    const customError = new Error(message);
+    customError.status = error.response?.status;
+    throw customError;
   }
 }
 
@@ -142,27 +158,12 @@ export async function login(email, password) {
 export async function uploadPhoto(profilePhoto, coverPhoto) {
   try {
     await refresh();
-    const formData = new FormData();
-    const addFile = async (uri, fieldName, fileName) => {
-      const fileExtension = uri.split(".").pop() || "jpg";
-      const mimeType = `image/${fileExtension}`;
+    const obj = {};
 
-      formData.append(fieldName, {
-        uri,
-        name: `${fileName}.${fileExtension}`,
-        type: mimeType,
-      });
-    };
+    if (profilePhoto) obj.profilePhoto = profilePhoto;
+    if (coverPhoto) obj.coverPhoto = coverPhoto;
 
-    if (profilePhoto) await addFile(profilePhoto, "profilePhoto", "profile");
-    if (coverPhoto) await addFile(coverPhoto, "coverPhoto", "cover");
-
-    const response = await api.patch("/api/user/upload-photo", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-
+    const response = await api.patch("/api/user/upload-photo", obj);
     const data = response.data;
     // Save user data to localstorage
     if (data.status)
@@ -170,10 +171,51 @@ export async function uploadPhoto(profilePhoto, coverPhoto) {
 
     return data;
   } catch (error) {
-    const message = error.response?.data?.message || "Something went wrong!";
-    throw new Error(message);
+    const message = error.response?.data?.message || "Something went wrong";
+    const customError = new Error(message);
+    customError.status = error.response?.status;
+    throw customError;
   }
 }
+
+// Upload photo with form data
+// export async function uploadPhoto(profilePhoto, coverPhoto) {
+//   try {
+//     await refresh();
+//     const formData = new FormData();
+//     const addFile = async (uri, fieldName, fileName) => {
+//       const fileExtension = uri.split(".").pop() || "jpg";
+//       const mimeType = `image/${fileExtension}`;
+
+//       formData.append(fieldName, {
+//         uri,
+//         name: `${fileName}.${fileExtension}`,
+//         type: mimeType,
+//       });
+//     };
+
+//     if (profilePhoto) await addFile(profilePhoto, "profilePhoto", "profile");
+//     if (coverPhoto) await addFile(coverPhoto, "coverPhoto", "cover");
+
+//     const response = await api.patch("/api/user/upload-photo", formData, {
+//       headers: {
+//         "Content-Type": "multipart/form-data",
+//       },
+//     });
+
+//     const data = response.data;
+//     // Save user data to localstorage
+//     if (data.status)
+//       await saveUserData(data.result.user, data.result.accessToken);
+
+//     return data;
+//   } catch (error) {
+//     const message = error.response?.data?.message || "Something went wrong";
+//     const customError = new Error(message);
+//     customError.status = error.response?.status;
+//     throw customError;
+//   }
+// }
 
 // Refresh access token
 export async function refresh() {
@@ -194,7 +236,9 @@ export async function refresh() {
     return accessToken;
   } catch (error) {
     const message = error.response?.data?.message || "Something went wrong";
-    throw new Error(message);
+    const customError = new Error(message);
+    customError.status = error.response?.status;
+    throw customError;
   }
 }
 
@@ -214,10 +258,7 @@ export async function changeNames(name, username) {
 
     await refresh();
     const response = await api.patch("/api/user/change-names", payload);
-    console.log(response, "ll");
-
     const data = response.data;
-
     // Save user data to localstorage
     await saveUserData(data.result.user);
 

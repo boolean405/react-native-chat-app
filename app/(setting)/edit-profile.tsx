@@ -1,12 +1,6 @@
-import { changeNames } from "@/api/user";
-import { ThemedButton } from "@/components/ThemedButton";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { Colors } from "@/constants/colors";
-import { getUserData } from "@/storage/authStorage";
-import { Ionicons } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
+import * as FileSystem from "expo-file-system";
+import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
 import {
   Alert,
@@ -22,6 +16,14 @@ import {
   useColorScheme,
 } from "react-native";
 
+import { changeNames } from "@/api/user";
+import { Colors } from "@/constants/colors";
+import { Ionicons } from "@expo/vector-icons";
+import { getUserData } from "@/storage/authStorage";
+import { ThemedView } from "@/components/ThemedView";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedButton } from "@/components/ThemedButton";
+
 const screenWidth = Dimensions.get("window").width;
 
 const EditProfile: React.FC = () => {
@@ -34,6 +36,8 @@ const EditProfile: React.FC = () => {
   const [username, setUsername] = useState("");
   const [profilePhoto, setProfileImage] = useState<string | null>(null);
   const [coverPhoto, setCoverImage] = useState<string | null>(null);
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
+
   const [isInvalidName, setIsInvalidName] = useState(false);
   const [isInvalidUsername, setIsInvalidUsername] = useState(false);
   const [isExistUsername, setIsExistUsername] = useState(false);
@@ -104,6 +108,21 @@ const EditProfile: React.FC = () => {
       if (!result.canceled) {
         setImage(result.assets[0].uri);
       }
+
+      if (result && result.assets && result.assets.length) {
+        // if base64 privoided use or covert
+        if (result.assets[0].base64) {
+          setImageBase64(result.assets[0].base64);
+        } else {
+          const base64 = await FileSystem.readAsStringAsync(
+            result.assets[0].uri,
+            {
+              encoding: FileSystem.EncodingType.Base64,
+            }
+          );
+          setImageBase64(base64);
+        }
+      }
     } catch (error) {
       console.error("Image Picker Error:", error);
     }
@@ -117,8 +136,6 @@ const EditProfile: React.FC = () => {
     try {
       const data = await changeNames(name, username);
 
-      // console.log("datda", data.message);
-
       if (data.status) {
         Alert.alert("Success", data.message);
         router.back();
@@ -128,11 +145,7 @@ const EditProfile: React.FC = () => {
     } catch (error: any) {
       setIsError(true);
       error.status === 409 && setIsExistUsername(true);
-      console.log(error.status);
-      console.log(error.message);
-
       setErrorMessage(error.message);
-      Alert.alert("Error", error.message);
     } finally {
       setIsLoading(false);
     }

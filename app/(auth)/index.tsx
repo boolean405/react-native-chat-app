@@ -33,13 +33,15 @@ export default function FlashScreen() {
     loadingFlash.start();
 
     // TODO: Enable auth check to auto-navigate
-    const checkAuth = async () => {
-      const user = await getUserData();
-      setTimeout(() => {
-        router.replace(user ? "/(tab)" : "/(auth)/login-or-register");
-      }, 1000);
-    };
-    checkAuth();
+    // const checkAuth = async () => {
+    //   const user = await getUserData();
+    //   setTimeout(() => {
+    //     router.replace(user ? "/(tab)" : "/(auth)/login-or-register");
+    //   }, 1000);
+    // };
+    // checkAuth();
+
+    router.replace("/(auth)/upload-photo");
 
     return () => loadingFlash.stop(); // Clean up animation loop
   }, []);

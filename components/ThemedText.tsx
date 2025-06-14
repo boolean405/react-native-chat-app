@@ -12,7 +12,9 @@ export type ThemedTextProps = TextProps & {
     | "subtitle"
     | "param"
     | "link"
-    | "paramItalic";
+    | "paramItalic"
+    | "small"
+    | "smallItalic";
 };
 
 export function ThemedText({
@@ -34,6 +36,8 @@ export function ThemedText({
         type === "subtitle" ? styles.subtitle : undefined,
         type === "param" ? styles.param : undefined,
         type === "paramItalic" ? styles.paramItalic : undefined,
+        type === "small" ? styles.small : undefined,
+        type === "smallItalic" ? styles.smallItalic : undefined,
         type === "link" ? styles.link : undefined,
         style,
       ]}
@@ -69,6 +73,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontStyle: "italic",
     // fontWeight: "500",
+  },
+  small: {
+    fontSize: 12,
+  },
+  smallItalic: {
+    fontSize: 12,
+    fontStyle: "italic",
   },
   link: {
     fontSize: 16,

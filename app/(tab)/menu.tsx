@@ -42,7 +42,7 @@ const MENUS: {
 
 export default function Menu() {
   const [copiedText, setCopiedText] = useState("");
-  const [refreshing, setRefreshing] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [user, setUser] = useState<any>(null);
 
   const colorScheme = useColorScheme();
@@ -69,11 +69,11 @@ export default function Menu() {
   };
 
   const onRefresh = async () => {
-    setRefreshing(true);
+    setIsRefreshing(true);
     // need to call api
     await fetchUserData();
-    setRefreshing(false);
-    ToastAndroid.show("Refreshed!", ToastAndroid.SHORT);
+    setIsRefreshing(false);
+    ToastAndroid.show("Refreshed", ToastAndroid.SHORT);
   };
 
   return (
@@ -82,7 +82,7 @@ export default function Menu() {
       contentContainerStyle={{ paddingBottom: 40 }}
       refreshControl={
         <RefreshControl
-          refreshing={refreshing}
+          refreshing={isRefreshing}
           onRefresh={onRefresh}
           tintColor={colors.tint}
           colors={[colors.background]}
@@ -111,7 +111,7 @@ export default function Menu() {
         />
 
         <ListSection
-          title="Services"
+          title="Menus"
           data={MENUS}
           tintColor={colors.tint}
           textColor={colors.text}
