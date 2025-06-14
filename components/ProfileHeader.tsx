@@ -1,16 +1,16 @@
 // components/ProfileHeader.tsx
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { Ionicons } from "@expo/vector-icons";
+import * as Clipboard from "expo-clipboard";
+import { useRouter } from "expo-router";
 import React from "react";
 import {
   Image,
   StyleSheet,
-  TouchableOpacity,
   ToastAndroid,
+  TouchableOpacity,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import * as Clipboard from "expo-clipboard";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
-import { useRouter } from "expo-router";
 
 interface Props {
   name: string;
@@ -53,7 +53,13 @@ export const ProfileHeader: React.FC<Props> = ({
       activeOpacity={0.8}
       onPress={onPress}
     >
-      <Image source={{ uri: profilePhoto }} style={[styles.profilePhoto, { borderColor: textColor ,backgroundColor: secondary}]} />
+      <Image
+        source={{ uri: profilePhoto }}
+        style={[
+          styles.profilePhoto,
+          { borderColor: textColor, backgroundColor: secondary },
+        ]}
+      />
       <ThemedView style={styles.profileInfo}>
         <ThemedView style={styles.profileHeader}>
           <ThemedView style={{ flex: 1 }}>

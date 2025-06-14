@@ -5,7 +5,14 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: "default" | "title" | "defaultItalic" | "subtitle" | "param" | "link" | "paramItalic";
+  type?:
+    | "default"
+    | "title"
+    | "defaultItalic"
+    | "subtitle"
+    | "param"
+    | "link"
+    | "paramItalic";
 };
 
 export function ThemedText({

@@ -1,9 +1,9 @@
-import React from "react";
-import { useRouter } from "expo-router";
-import { StyleSheet, TouchableOpacity, Alert } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
-import { clearUserData } from "@/stores/authStore";
+import { clearUserData } from "@/storage/authStorage";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import React from "react";
+import { Alert, StyleSheet, TouchableOpacity } from "react-native";
 
 const router = useRouter();
 

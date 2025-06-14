@@ -14,7 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedButton } from "@/components/ThemedButton";
-import { existUsername } from "@/services/api";
+import { existUsername } from "@/api/user"
 
 export default function CreateName() {
   const [name, setName] = useState("");
@@ -60,7 +60,7 @@ export default function CreateName() {
       });
     } catch (error: any) {
       setIsError(true);
-      setErrorMessage(error);
+      setErrorMessage(error.message);
     } finally {
       setIsLoading(false);
     }

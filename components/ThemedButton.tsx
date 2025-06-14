@@ -1,9 +1,9 @@
 import {
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  type TouchableOpacityProps,
   ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  type TouchableOpacityProps,
 } from "react-native";
 
 import { useThemeColor } from "@/hooks/useThemeColor";

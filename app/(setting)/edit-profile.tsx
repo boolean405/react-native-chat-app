@@ -1,26 +1,26 @@
-import React, { useState, useEffect } from "react";
+import { changeNames } from "@/api/user";
+import { ThemedButton } from "@/components/ThemedButton";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { Colors } from "@/constants/colors";
+import { getUserData } from "@/storage/authStorage";
+import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
-  TextInput,
-  Image,
-  TouchableOpacity,
-  StyleSheet,
   Alert,
   Dimensions,
-  useColorScheme,
-  ScrollView,
+  Image,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  useColorScheme,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
-import { Colors } from "@/constants/Colors";
-import { ThemedView } from "@/components/ThemedView";
-import { ThemedText } from "@/components/ThemedText";
-import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
-import { ThemedButton } from "@/components/ThemedButton";
-import { getUserData } from "@/stores/authStore";
-import { changeNames } from "@/services/api";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -127,11 +127,23 @@ const EditProfile: React.FC = () => {
       // router.push("/(tab)");
     } catch (error: any) {
       setIsError(true);
+      error.status === 409 && setIsExistUsername(true);
+      console.log(error.status);
+      console.log(error.message);
+
       setErrorMessage(error.message);
       Alert.alert("Error", error.message);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleRemoveCover = () => {
+    setCoverImage(null);
+  };
+
+  const handleRemoveProfile = () => {
+    setProfileImage(null);
   };
 
   return (
@@ -160,7 +172,7 @@ const EditProfile: React.FC = () => {
                 />
                 <TouchableOpacity
                   style={styles.deleteIconCover}
-                  onPress={() => setCoverImage(null)}
+                  onPress={handleRemoveCover}
                 >
                   <Ionicons name="trash-outline" size={24} color="red" />
                 </TouchableOpacity>
@@ -214,7 +226,7 @@ const EditProfile: React.FC = () => {
           {profilePhoto && (
             <TouchableOpacity
               style={styles.deleteIconProfile}
-              onPress={() => setProfileImage(null)}
+              onPress={handleRemoveProfile}
             >
               <Ionicons name="trash-outline" size={24} color="red" />
             </TouchableOpacity>
@@ -284,10 +296,9 @@ const EditProfile: React.FC = () => {
             />
           </ThemedView>
 
-          {isExistUsername ||
-            (isError && (
-              <ThemedText style={{ color: "red" }}>{errorMessage}</ThemedText>
-            ))}
+          {isError && (
+            <ThemedText style={{ color: "red" }}>{errorMessage}</ThemedText>
+          )}
 
           <ThemedButton
             style={[

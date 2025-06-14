@@ -1,8 +1,8 @@
-import React from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
-import { Colors } from "@/constants/Colors";
+import { Colors } from "@/constants/colors";
 import { Post, User } from "@/types";
 import { useVideoPlayer, VideoView } from "expo-video";
+import React from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type Props = {
   post: Post;
@@ -21,14 +21,14 @@ const PostCard: React.FC<Props> = ({
   onShare,
   onUserPress,
 }) => {
-  const colors = Colors[colorScheme];
+  const theme = Colors[colorScheme];
   const player =
     post.type === "video" && post.videoUrl
       ? useVideoPlayer(post.videoUrl)
       : undefined;
 
   return (
-    <View style={[styles.postCard, { backgroundColor: colors.secondary }]}>
+    <View style={[styles.postCard, { backgroundColor: theme.secondary }]}>
       <View style={styles.postUserRow}>
         <TouchableOpacity onPress={() => onUserPress(post.user)}>
           <Image
@@ -37,15 +37,15 @@ const PostCard: React.FC<Props> = ({
           />
         </TouchableOpacity>
         <View style={{ marginLeft: 8 }}>
-          <Text style={[styles.postUserName, { color: colors.text }]}>
+          <Text style={[styles.postUserName, { color: theme.text }]}>
             {post.user.name}
           </Text>
-          <Text style={[styles.postDate, { color: colors.icon }]}>
+          <Text style={[styles.postDate, { color: theme.icon }]}>
             {new Date(post.createdAt).toLocaleString()}
           </Text>
         </View>
       </View>
-      <Text style={[styles.postContent, { color: colors.text }]}>
+      <Text style={[styles.postContent, { color: theme.text }]}>
         {post.content}
       </Text>
       {post.type === "photo" && post.imageUrl && (
@@ -67,12 +67,12 @@ const PostCard: React.FC<Props> = ({
           <Text
             style={[
               styles.actionIcon,
-              { color: post.loved ? "#E91E63" : colors.icon },
+              { color: post.loved ? "#E91E63" : theme.icon },
             ]}
           >
             ♥
           </Text>
-          <Text style={[styles.actionText, { color: colors.icon }]}>
+          <Text style={[styles.actionText, { color: theme.icon }]}>
             {post.loveCount ?? 0}
           </Text>
         </TouchableOpacity>
@@ -80,8 +80,8 @@ const PostCard: React.FC<Props> = ({
           onPress={() => onComment(post.id)}
           style={styles.actionButton}
         >
-          <Text style={[styles.actionIcon, { color: colors.icon }]}>💬</Text>
-          <Text style={[styles.actionText, { color: colors.icon }]}>
+          <Text style={[styles.actionIcon, { color: theme.icon }]}>💬</Text>
+          <Text style={[styles.actionText, { color: theme.icon }]}>
             {post.commentCount ?? 0}
           </Text>
         </TouchableOpacity>
@@ -89,8 +89,8 @@ const PostCard: React.FC<Props> = ({
           onPress={() => onShare(post.id)}
           style={styles.actionButton}
         >
-          <Text style={[styles.actionIcon, { color: colors.icon }]}>🔗</Text>
-          <Text style={[styles.actionText, { color: colors.icon }]}>
+          <Text style={[styles.actionIcon, { color: theme.icon }]}>🔗</Text>
+          <Text style={[styles.actionText, { color: theme.icon }]}>
             {post.shareCount ?? 0}
           </Text>
         </TouchableOpacity>

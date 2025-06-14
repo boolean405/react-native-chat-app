@@ -1,35 +1,33 @@
 import { useRouter } from "expo-router";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
-  View,
-  StyleSheet,
-  Image,
-  FlatList,
-  TouchableOpacity,
-  RefreshControl,
-  Dimensions,
   ActivityIndicator,
+  Alert,
+  Dimensions,
+  FlatList,
+  Image,
   Modal,
   Pressable,
-  Alert,
+  RefreshControl,
+  StyleSheet,
+  TouchableOpacity,
   useColorScheme,
+  View,
 } from "react-native";
 
-import { Colors } from "@/constants/Colors";
-import { fetchUser } from "@/config/user";
-import { User } from "@/types";
 import PostCard from "@/components/PostCard";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
 import { ThemedButton } from "@/components/ThemedButton";
-import { Ionicons } from "@expo/vector-icons";
+import { ThemedText } from "@/components/ThemedText";
+import { fetchUser } from "@/config/user";
+import { Colors } from "@/constants/colors";
+import { User } from "@/types";
 
 const { width: screenWidth } = Dimensions.get("window");
 const COVER_HEIGHT = 180;
 
 export default function FlashScreen() {
   const colorScheme = useColorScheme() === "dark" ? "dark" : "light";
-  const colors = Colors[colorScheme];
+  const theme = Colors[colorScheme];
 
   const [user, setUser] = useState<User | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -123,8 +121,8 @@ export default function FlashScreen() {
             style={[
               styles.profilePhoto,
               {
-                borderColor: colors.borderColor,
-                backgroundColor: colors.secondary,
+                borderColor: theme.borderColor,
+                backgroundColor: theme.secondary,
               },
             ]}
           />
@@ -167,10 +165,10 @@ export default function FlashScreen() {
       <View
         style={[
           styles.loadingContainer,
-          { backgroundColor: colors.background },
+          { backgroundColor: theme.background },
         ]}
       >
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={theme.primary} />
       </View>
     );
   }
@@ -196,12 +194,12 @@ export default function FlashScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={colors.tint}
-            colors={[colors.background]}
-            progressBackgroundColor={colors.tint}
+            tintColor={theme.tint}
+            colors={[theme.background]}
+            progressBackgroundColor={theme.tint}
           />
         }
-        style={[styles.container, { backgroundColor: colors.background }]}
+        style={[styles.container, { backgroundColor: theme.background }]}
       />
 
       <Modal

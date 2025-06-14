@@ -10,12 +10,12 @@ import {
   useColorScheme,
 } from "react-native";
 
+import { uploadPhoto } from "@/api/user";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Colors } from "@/constants/Colors";
-import { uploadPhoto } from "@/services/api";
-import { getUserData } from "@/stores/authStore";
+import { colors } from "@/constants/colors";
+import { getUserData } from "@/storage/authStorage";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -29,7 +29,7 @@ export default function UploadPhoto() {
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
 
   const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme ?? "light"];
+  const theme = colors[colorScheme ?? "light"];
   const router = useRouter();
 
   useEffect(() => {
@@ -74,7 +74,7 @@ export default function UploadPhoto() {
       data.status && router.replace("/(tab)");
     } catch (error: any) {
       setIsError(true);
-      setErrorMessage(error);
+      setErrorMessage(error.message);
       Alert.alert("Upload Error", error.message);
     } finally {
       setIsLoading(false);

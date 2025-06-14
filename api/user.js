@@ -1,7 +1,11 @@
 import api from "../config/axios";
 import { jwtDecode } from "jwt-decode";
 
-import { getAccessToken, getUserData, saveUserData } from "../stores/authStore";
+import {
+  getAccessToken,
+  getUserData,
+  saveUserData,
+} from "../storage/authStorage";
 
 // Check user exist or not
 export async function existEmail(email) {
@@ -13,8 +17,7 @@ export async function existEmail(email) {
     });
     return response.data;
   } catch (error) {
-    const message =
-      error.message || error.response?.data?.message || "Something went wrong";
+    const message = error.response?.data?.message || "Something went wrong";
     throw new Error(message);
   }
 }
@@ -29,8 +32,7 @@ export async function existUsername(username) {
     });
     return response.data;
   } catch (error) {
-    const message =
-      error.message || error.response?.data?.message || "Something went wrong";
+    const message = error.response?.data?.message || "Something went wrong";
     throw new Error(message);
   }
 }
@@ -46,8 +48,7 @@ export async function register(name, username, email, password) {
     });
     return response.data;
   } catch (error) {
-    const message =
-      error.message || error.response?.data?.message || "Something went wrong";
+    const message = error.response?.data?.message || "Something went wrong";
     throw new Error(message);
   }
 }
@@ -66,8 +67,7 @@ export async function registerVerify(email, code) {
 
     return data;
   } catch (error) {
-    const message =
-      error.message || error.response?.data?.message || "Something went wrong";
+    const message = error.response?.data?.message || "Something went wrong";
     throw new Error(message);
   }
 }
@@ -80,8 +80,7 @@ export async function forgotPassword(email) {
     });
     return response.data;
   } catch (error) {
-    const message =
-      error.message || error.response?.data?.message || "Something went wrong";
+    const message = error.response?.data?.message || "Something went wrong";
     throw new Error(message);
   }
 }
@@ -96,8 +95,7 @@ export async function forgotPasswordVerify(email, code) {
 
     return response.data;
   } catch (error) {
-    const message =
-      error.message || error.response?.data?.message || "Something went wrong";
+    const message = error.response?.data?.message || "Something went wrong";
     throw new Error(message);
   }
 }
@@ -116,8 +114,7 @@ export async function resetPassword(email, password) {
 
     return data;
   } catch (error) {
-    const message =
-      error.message || error.response?.data?.message || "Something went wrong";
+    const message = error.response?.data?.message || "Something went wrong";
     throw new Error(message);
   }
 }
@@ -136,8 +133,7 @@ export async function login(email, password) {
 
     return data;
   } catch (error) {
-    const message =
-      error.message || error.response?.data?.message || "Something went wrong";
+    const message = error.response?.data?.message || "Something went wrong";
     throw new Error(message);
   }
 }
@@ -174,8 +170,7 @@ export async function uploadPhoto(profilePhoto, coverPhoto) {
 
     return data;
   } catch (error) {
-    const message =
-      error.message || error.response?.data?.message || "Something went wrong!";
+    const message = error.response?.data?.message || "Something went wrong!";
     throw new Error(message);
   }
 }
@@ -198,8 +193,7 @@ export async function refresh() {
     }
     return accessToken;
   } catch (error) {
-    const message =
-      error.message || error.response?.data?.message || "Something went wrong";
+    const message = error.response?.data?.message || "Something went wrong";
     throw new Error(message);
   }
 }
@@ -220,6 +214,8 @@ export async function changeNames(name, username) {
 
     await refresh();
     const response = await api.patch("/api/user/change-names", payload);
+    console.log(response, "ll");
+
     const data = response.data;
 
     // Save user data to localstorage
@@ -227,9 +223,10 @@ export async function changeNames(name, username) {
 
     return data;
   } catch (error) {
-    const message =
-      error.message || error.response?.data?.message || "Something went wrong";
-    throw new Error(message);
+    const message = error.response?.data?.message || "Something went wrong";
+    const customError = new Error(message);
+    customError.status = error.response?.status;
+    throw customError;
   }
 }
 // export async function editProfile(name, username, profilePhoto, coverPhoto) {

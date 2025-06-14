@@ -11,9 +11,9 @@ import {
   useColorScheme,
 } from "react-native";
 
+import { register, registerVerify } from "@/api/user";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { register, registerVerify } from "@/services/api";
 
 export default function VerifyEmailScreen() {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
@@ -86,7 +86,7 @@ export default function VerifyEmailScreen() {
           }
         } catch (error: any) {
           setIsError(true);
-          setErrorMessage(error);
+          setErrorMessage(error.message);
         } finally {
           setIsLoading(false);
         }

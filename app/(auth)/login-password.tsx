@@ -12,11 +12,11 @@ import {
   View,
 } from "react-native";
 
+import { forgotPassword, login } from "@/api/user";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Ionicons } from "@expo/vector-icons";
-import { forgotPassword, login } from "@/services/api";
 
 export default function LoginPassword() {
   const [password, setPassword] = useState("");
@@ -68,7 +68,7 @@ export default function LoginPassword() {
       data.status && router.replace("/(tab)");
     } catch (error: any) {
       setIsError(true);
-      setErrorMessage(error);
+      setErrorMessage(error.message);
     } finally {
       setIsLoading(false);
     }

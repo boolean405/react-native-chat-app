@@ -1,21 +1,21 @@
+import { ListSection } from "@/components/ListSection";
+import { LogoutButton } from "@/components/LogoutButton";
+import { ProfileHeader } from "@/components/ProfileHeader";
+import { ThemedView } from "@/components/ThemedView";
+import { WalletTab } from "@/components/WalletTab";
+import { Colors } from "@/constants/colors";
+import { getUserData } from "@/storage/authStorage";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
-  StyleSheet,
-  ScrollView,
   Dimensions,
-  useColorScheme,
-  ToastAndroid,
   RefreshControl,
+  ScrollView,
+  StyleSheet,
+  ToastAndroid,
+  useColorScheme,
 } from "react-native";
-import { Colors } from "@/constants/Colors";
-import { ThemedView } from "@/components/ThemedView";
-import { ProfileHeader } from "@/components/ProfileHeader";
-import { WalletTab } from "@/components/WalletTab";
-import { ListSection } from "@/components/ListSection";
-import { LogoutButton } from "@/components/LogoutButton";
-import { Ionicons } from "@expo/vector-icons";
-import { getUserData } from "@/stores/authStore";
 
 const screenWidth = Dimensions.get("window").width;
 const CONTAINER_WIDTH = screenWidth * 0.8;

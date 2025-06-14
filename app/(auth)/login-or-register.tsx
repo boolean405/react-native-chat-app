@@ -2,20 +2,20 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StyleSheet,
   TextInput,
-  Keyboard,
   useColorScheme,
 } from "react-native";
 
+import { existEmail } from "@/api/user";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Ionicons } from "@expo/vector-icons";
-import { existEmail } from "@/services/api";
 
 export default function LoginOrRegister() {
   const [email, setEmail] = useState("");
@@ -58,7 +58,7 @@ export default function LoginOrRegister() {
       }
     } catch (error: any) {
       setIsError(true);
-      setErrorMessage(error);
+      setErrorMessage(error.message);
     } finally {
       setIsLoading(false);
     }

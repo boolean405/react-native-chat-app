@@ -10,11 +10,11 @@ import {
   useColorScheme,
 } from "react-native";
 
+import { resetPassword } from "@/api/user";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { resetPassword } from "@/services/api";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
@@ -55,7 +55,7 @@ export default function ResetPassword() {
       if (data.status) router.replace("/(tab)");
     } catch (error: any) {
       setIsError(true);
-      setErrorMessage(error);
+      setErrorMessage(error.message);
     } finally {
       setIsLoading(false);
     }

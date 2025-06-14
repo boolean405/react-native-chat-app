@@ -1,12 +1,12 @@
-import React from "react";
-import { Tabs } from "expo-router";
-import { Platform, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
+import React from "react";
+import { Platform, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Colors } from "@/constants/Colors";
-import { useColorScheme } from "@/hooks/useColorScheme";
 import { HapticTab } from "@/components/HapticTab";
+import { Colors } from "@/constants/colors";
+import { useColorScheme } from "@/hooks/useColorScheme";
 
 export default function TabLayout() {
   // Get current color scheme (light or dark)

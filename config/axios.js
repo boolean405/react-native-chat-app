@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { getAccessToken } from "@/stores/authStore";
+import { getAccessToken } from "@/storage/authStorage";
 
 const BASE_URL = process.env.EXPO_PUBLIC_SERVER_URL;
 // const API_URL = `${BASE_URL}/api/user`;

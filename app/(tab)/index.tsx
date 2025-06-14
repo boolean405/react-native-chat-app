@@ -1,9 +1,9 @@
 import { View, Text, Alert } from "react-native";
 import React, { useState } from "react";
 import { ThemedButton } from "@/components/ThemedButton";
-import { getAccessToken } from "@/stores/authStore";
+import { getAccessToken } from "@/storage/authStorage";
 import { ThemedText } from "@/components/ThemedText";
-import { editProfile, refresh } from "@/services/api";
+import { refresh } from "@/api/user";
 
 export default function Chat() {
   const [localToken, setLocalToken] = useState<string | null>("");
@@ -28,8 +28,8 @@ export default function Chat() {
   };
   const handleEditProfile = async () => {
     try {
-      const data = await editProfile();
-      console.log(data);
+      // const data = await editProfile();
+      // console.log(data);
     } catch (error: any) {
       Alert.alert("Error", error);
     }

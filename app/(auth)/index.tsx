@@ -5,7 +5,7 @@ import { Animated, Dimensions, StyleSheet } from "react-native";
 
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { getUserData } from "@/stores/authStore";
+import { getUserData } from "@/storage/authStorage";
 
 const { width } = Dimensions.get("window");
 
