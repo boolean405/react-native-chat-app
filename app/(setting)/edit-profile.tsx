@@ -16,27 +16,31 @@ import {
   useColorScheme,
 } from "react-native";
 
-import { changeNames } from "@/api/user";
+import { changeNames, deletePhoto } from "@/api/user";
 import { Colors } from "@/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { getUserData } from "@/storage/authStorage";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedButton } from "@/components/ThemedButton";
+import pickImage from "@/utils/pickImage";
 
 const screenWidth = Dimensions.get("window").width;
 
 const EditProfile: React.FC = () => {
   const colorScheme = useColorScheme();
   const theme = Colors[colorScheme ?? "light"];
-  const color = colorScheme === "dark" ? "white" : "black";
+  const color = Colors[colorScheme ?? "light"];
   const router = useRouter();
 
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
-  const [profilePhoto, setProfileImage] = useState<string | null>(null);
-  const [coverPhoto, setCoverImage] = useState<string | null>(null);
-  const [imageBase64, setImageBase64] = useState<string | null>(null);
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const [coverPhoto, setCoverPhoto] = useState<string | null>(null);
+  const [profilePhotoBase64, setProfilePhotoBase64] = useState<string | null>(
+    null
+  );
+  const [coverPhotoBase64, setCoverPhotoBase64] = useState<string | null>(null);
 
   const [isInvalidName, setIsInvalidName] = useState(false);
   const [isInvalidUsername, setIsInvalidUsername] = useState(false);
@@ -53,8 +57,8 @@ const EditProfile: React.FC = () => {
         if (userData) {
           setName(userData.name || "");
           setUsername(userData.username || "");
-          setProfileImage(userData.profilePhoto || null); // if you have it saved
-          setCoverImage(userData.coverPhoto || null); // if you have it saved
+          setProfilePhoto(userData.profilePhoto || null); // if you have it saved
+          setCoverPhoto(userData.coverPhoto || null); // if you have it saved
         }
       } catch (error) {
         console.error("Failed to load user data:", error);
@@ -93,41 +97,6 @@ const EditProfile: React.FC = () => {
     requestPermission();
   }, []);
 
-  const pickImage = async (
-    setImage: React.Dispatch<React.SetStateAction<string | null>>,
-    aspect: [number, number]
-  ) => {
-    try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: "images",
-        allowsEditing: true,
-        aspect,
-        quality: 1,
-      });
-
-      if (!result.canceled) {
-        setImage(result.assets[0].uri);
-      }
-
-      if (result && result.assets && result.assets.length) {
-        // if base64 privoided use or covert
-        if (result.assets[0].base64) {
-          setImageBase64(result.assets[0].base64);
-        } else {
-          const base64 = await FileSystem.readAsStringAsync(
-            result.assets[0].uri,
-            {
-              encoding: FileSystem.EncodingType.Base64,
-            }
-          );
-          setImageBase64(base64);
-        }
-      }
-    } catch (error) {
-      console.error("Image Picker Error:", error);
-    }
-  };
-
   const handleContinue = async () => {
     Keyboard.dismiss();
 
@@ -152,40 +121,115 @@ const EditProfile: React.FC = () => {
   };
 
   const handleRemoveCover = () => {
-    setCoverImage(null);
+    Alert.alert(
+      "Delete Cover Photo",
+      "Are you sure you want to delete cover photo?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            // api here
+            const data = await deletePhoto(coverPhoto, "coverPhoto");
+            data.status && setCoverPhoto(null);
+          },
+        },
+      ]
+    );
   };
 
   const handleRemoveProfile = () => {
-    setProfileImage(null);
+    Alert.alert(
+      "Delete Profile Photo",
+      "Are you sure you want to delete profile photo?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            // api here
+            const data = await deletePhoto(profilePhoto, "profilePhoto");
+            data.status && setProfilePhoto(null);
+          },
+        },
+      ]
+    );
   };
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: theme.background }}
+      style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
-        contentContainerStyle={[
-          styles.container,
-          { backgroundColor: theme.background },
-        ]}
+        contentContainerStyle={[styles.scrollContainer]}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Cover Image */}
-        <TouchableOpacity onPress={() => pickImage(setCoverImage, [2, 1])}>
-          <ThemedView>
-            {coverPhoto ? (
+        <ThemedView style={[styles.container]}>
+          {/* Cover Image */}
+          <TouchableOpacity
+            onPress={() =>
+              !isLoading &&
+              pickImage(
+                setCoverPhoto,
+                setCoverPhotoBase64,
+                setIsError,
+                setErrorMessage,
+                [2, 1]
+              )
+            }
+          >
+            <ThemedView style={styles.coverPhotoContainer}>
+              {coverPhoto ? (
+                <ThemedView>
+                  <Image
+                    source={{ uri: coverPhoto }}
+                    style={[styles.coverPhoto]}
+                  />
+                  <TouchableOpacity
+                    style={styles.deleteIconCover}
+                    onPress={handleRemoveCover}
+                  >
+                    <Ionicons name="trash-outline" size={24} color="red" />
+                  </TouchableOpacity>
+                </ThemedView>
+              ) : (
+                <ThemedView
+                  style={[
+                    styles.coverPlaceholder,
+                    { backgroundColor: color.secondary },
+                  ]}
+                >
+                  <ThemedText type="small">Add Cover Photo</ThemedText>
+                </ThemedView>
+              )}
+            </ThemedView>
+          </TouchableOpacity>
+
+          {/* Profile Image */}
+          <TouchableOpacity
+            onPress={() =>
+              !isLoading &&
+              pickImage(
+                setProfilePhoto,
+                setProfilePhotoBase64,
+                setIsError,
+                setErrorMessage
+              )
+            }
+            style={[styles.profileImageWrapper]}
+          >
+            {profilePhoto ? (
               <>
                 <Image
-                  source={{ uri: coverPhoto }}
-                  style={[
-                    styles.coverPhoto,
-                    { backgroundColor: theme.background },
-                  ]}
+                  source={{ uri: profilePhoto }}
+                  style={styles.profilePhoto}
                 />
                 <TouchableOpacity
-                  style={styles.deleteIconCover}
-                  onPress={handleRemoveCover}
+                  style={styles.deleteIconProfile}
+                  onPress={handleRemoveProfile}
                 >
                   <Ionicons name="trash-outline" size={24} color="red" />
                 </TouchableOpacity>
@@ -193,150 +237,125 @@ const EditProfile: React.FC = () => {
             ) : (
               <ThemedView
                 style={[
-                  styles.coverPlaceholder,
-                  { backgroundColor: theme.secondary },
-                ]}
-              >
-                <ThemedText
-                  style={[styles.addPhotoText, { color: theme.text }]}
-                >
-                  Add Cover Photo
-                </ThemedText>
-              </ThemedView>
-            )}
-          </ThemedView>
-        </TouchableOpacity>
-
-        {/* Profile Image */}
-        <ThemedView style={{ position: "relative" }}>
-          <TouchableOpacity
-            onPress={() => pickImage(setProfileImage, [1, 1])}
-            style={[
-              styles.profileImageWrapper,
-              { borderColor: theme.borderColor },
-            ]}
-          >
-            {profilePhoto ? (
-              <Image
-                source={{ uri: profilePhoto }}
-                style={styles.profilePhoto}
-              />
-            ) : (
-              <ThemedView
-                style={[
                   styles.profilePlaceholder,
-                  { backgroundColor: theme.secondary },
+                  { backgroundColor: color.secondary },
                 ]}
               >
-                <ThemedText
-                  style={[styles.addPhotoText, { color: theme.text }]}
-                >
-                  Add Profile Photo
-                </ThemedText>
+                <ThemedText type="small">Add Profile Photo</ThemedText>
               </ThemedView>
             )}
           </TouchableOpacity>
-          {profilePhoto && (
-            <TouchableOpacity
-              style={styles.deleteIconProfile}
-              onPress={handleRemoveProfile}
+
+          {/* Inputs and Button */}
+          <ThemedView style={styles.bottomContainer}>
+            <ThemedText type="title">{name}</ThemedText>
+            <ThemedText type="subtitle">
+              {username && `@${username}`}
+            </ThemedText>
+
+            <ThemedText type="subtitle" style={styles.nameText}>
+              Edit your profile
+            </ThemedText>
+
+            {/* Name Input */}
+            <ThemedView
+              style={[
+                styles.inputContainer,
+                { borderColor: color.borderColor },
+              ]}
             >
-              <Ionicons name="trash-outline" size={24} color="red" />
-            </TouchableOpacity>
-          )}
-        </ThemedView>
+              <Ionicons
+                name="person-outline"
+                size={24}
+                style={{ color: color.icon }}
+              />
+              <TextInput
+                style={[styles.textInput, { color: color.primary }]}
+                placeholder="Name"
+                autoComplete="name"
+                placeholderTextColor="gray"
+                value={name}
+                autoCapitalize="words"
+                autoCorrect={false}
+                editable={!isLoading}
+                onBlur={() => setName(name.trim())}
+                onChangeText={(text) => {
+                  setIsError(false);
+                  const sanitized = text
+                    .replace(/^\s+/, "") // Remove leading spaces
+                    .replace(/[^A-Za-z\s]/g, ""); // Remove all non-letter characters
+                  setName(sanitized);
+                }}
+              />
+            </ThemedView>
 
-        {/* Inputs and Button */}
-        <ThemedView style={styles.bottomContainer}>
-          <ThemedText type="title">{name}</ThemedText>
-          <ThemedText type="subtitle">{username && `@${username}`}</ThemedText>
+            {/* Username Input */}
+            <ThemedView
+              style={[
+                styles.inputContainer,
+                { borderColor: isExistUsername ? "red" : color.borderColor },
+              ]}
+            >
+              <Ionicons
+                name="at-outline"
+                size={24}
+                style={{ color: color.icon }}
+              />
+              <TextInput
+                style={[styles.textInput, { color: color.primary }]}
+                placeholder="Username"
+                autoComplete="username-new"
+                placeholderTextColor="gray"
+                value={username}
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={!isLoading}
+                onSubmitEditing={() =>
+                  !isInvalidName &&
+                  !isInvalidUsername &&
+                  !isError &&
+                  handleContinue()
+                }
+                onChangeText={(text) => {
+                  setIsError(false);
+                  setIsExistUsername(false);
+                  const sanitized = text
+                    .replace(/[^a-z0-9]/g, "")
+                    .toLowerCase();
+                  setUsername(sanitized);
+                }}
+              />
+            </ThemedView>
 
-          <ThemedText type="subtitle" style={styles.titleText}>
-            Edit your profile
-          </ThemedText>
+            {isError && (
+              <ThemedText style={{ color: "red" }}>{errorMessage}</ThemedText>
+            )}
 
-          {/* Name Input */}
-          <ThemedView style={[styles.inputContainer, { borderColor: color }]}>
-            <Ionicons name="person-outline" size={24} style={{ color }} />
-            <TextInput
-              style={[styles.textInput, { color }]}
-              placeholder="Name"
-              autoComplete="name"
-              placeholderTextColor="gray"
-              value={name}
-              autoCapitalize="words"
-              autoCorrect={false}
-              editable={!isLoading}
-              onBlur={() => setName(name.trim())}
-              onChangeText={(text) => {
-                setIsError(false);
-                const sanitized = text
-                  .replace(/^\s+/, "") // Remove leading spaces
-                  .replace(/[^A-Za-z\s]/g, ""); // Remove all non-letter characters
-                setName(sanitized);
-              }}
-            />
-          </ThemedView>
-
-          {/* Username Input */}
-          <ThemedView
-            style={[
-              styles.inputContainer,
-              { borderColor: isExistUsername ? "red" : color },
-            ]}
-          >
-            <Ionicons name="at-outline" size={24} style={{ color }} />
-            <TextInput
-              style={[styles.textInput, { color }]}
-              placeholder="Username"
-              autoComplete="username-new"
-              placeholderTextColor="gray"
-              value={username}
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!isLoading}
-              onSubmitEditing={() =>
-                !isInvalidName &&
-                !isInvalidUsername &&
-                !isError &&
-                handleContinue()
-              }
-              onChangeText={(text) => {
-                setIsError(false);
-                const sanitized = text.replace(/[^a-z0-9]/g, "").toLowerCase();
-                setUsername(sanitized);
-              }}
-            />
-          </ThemedView>
-
-          {isError && (
-            <ThemedText style={{ color: "red" }}>{errorMessage}</ThemedText>
-          )}
-
-          <ThemedButton
-            style={[
-              styles.button,
-              (isInvalidUsername ||
+            <ThemedButton
+              style={[
+                styles.button,
+                (isInvalidUsername ||
+                  isInvalidName ||
+                  isLoading ||
+                  isError ||
+                  isExistUsername ||
+                  !canChange) && {
+                  opacity: 0.5,
+                },
+              ]}
+              title={!isLoading && "Change names"}
+              onPress={handleContinue}
+              disabled={
+                isInvalidUsername ||
                 isInvalidName ||
                 isLoading ||
                 isError ||
                 isExistUsername ||
-                !canChange) && {
-                opacity: 0.5,
-              },
-            ]}
-            title={!isLoading && "Change names"}
-            onPress={handleContinue}
-            disabled={
-              isInvalidUsername ||
-              isInvalidName ||
-              isLoading ||
-              isError ||
-              isExistUsername ||
-              !canChange
-            }
-            isLoading={isLoading}
-          />
+                !canChange
+              }
+              isLoading={isLoading}
+            />
+          </ThemedView>
         </ThemedView>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -346,38 +365,16 @@ const EditProfile: React.FC = () => {
 export default EditProfile;
 
 const styles = StyleSheet.create({
-  container: {
-    alignItems: "center",
-    paddingBottom: 40,
+  scrollContainer: {
     flexGrow: 1,
+    justifyContent: "center",
   },
-  coverPhoto: {
-    width: screenWidth,
-    height: 180,
-  },
-  coverPlaceholder: {
-    width: screenWidth,
-    height: 180,
+  container: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  profileImageWrapper: {
-    marginTop: -30,
-    borderRadius: 60,
-    borderWidth: 2,
-  },
-  profilePhoto: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-  },
-  profilePlaceholder: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    justifyContent: "center",
-    alignItems: "center",
-  },
+
   addPhotoText: {
     fontSize: 14,
   },
@@ -387,9 +384,7 @@ const styles = StyleSheet.create({
     width: "100%",
     marginTop: 20,
   },
-  titleText: {
-    marginVertical: 30,
-  },
+
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -408,20 +403,62 @@ const styles = StyleSheet.create({
     width: "80%",
     marginTop: 10,
   },
+
+  coverPhotoContainer: {
+    width: screenWidth * 0.9,
+    // height: 180,
+    // borderRadius: 12,
+    // marginBottom: 20,
+  },
+  coverPhoto: {
+    // width: screenWidth * 0.9,
+    height: 180,
+    borderRadius: 15,
+    // marginBottom: 20,
+  },
+  coverPlaceholder: {
+    // width: screenWidth * 0.9,
+    height: 180,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    // marginBottom: 20,
+  },
   deleteIconCover: {
     position: "absolute",
-    top: 50,
-    right: 20,
-    backgroundColor: "gray",
-    borderRadius: 12,
+    top: 10,
+    right: 10,
+    // backgroundColor: "gray",
+    // borderRadius: 12,
   },
 
   deleteIconProfile: {
     position: "absolute",
-    top: -5,
-    right: -5,
-    backgroundColor: "gray",
-    borderRadius: 12,
-    zIndex: 2,
+    right: 45,
+    bottom: 0,
+    // backgroundColor: "gray",
+    // borderRadius: 12,
+    // zIndex: 2,
+  },
+  profileImageWrapper: {
+    marginTop: -30,
+    borderRadius: 60,
+    alignSelf: "center",
+  },
+  profilePhoto: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+  },
+  profilePlaceholder: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    // borderWidth: 2,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  nameText: {
+    marginTop: 20,
   },
 });

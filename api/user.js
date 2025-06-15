@@ -300,3 +300,26 @@ export async function changeNames(name, username) {
 //     throw new Error(message);
 //   }
 // }
+
+// Delete photo
+export async function deletePhoto(photo, type) {
+  try {
+    await refresh();
+    const obj = {};
+
+    obj[type] = photo;
+
+    const response = await api.patch("/api/user/delete-photo", obj);
+    const data = response.data;
+    // Save user data to localstorage
+    if (data.status)
+      await saveUserData(data.result.user, data.result.accessToken);
+
+    return data;
+  } catch (error) {
+    const message = error.response?.data?.message || "Something went wrong";
+    const customError = new Error(message);
+    customError.status = error.response?.status;
+    throw customError;
+  }
+}

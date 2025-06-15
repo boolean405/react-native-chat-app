@@ -20,6 +20,7 @@ import { Colors } from "@/constants/colors";
 import { getUserData } from "@/storage/authStorage";
 import { Ionicons } from "@expo/vector-icons";
 import getImageMimeType from "@/utils/getImageMimeType";
+import pickImage from "@/utils/pickImage";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -110,62 +111,18 @@ export default function UploadPhoto() {
     setProfilePhoto(null);
   };
 
-  const pickImage = async (
-    setImage: React.Dispatch<React.SetStateAction<string | null>>,
-    setImageBase64: React.Dispatch<React.SetStateAction<string | null>>,
-    aspect?: [number, number]
-  ) => {
-    try {
-      if (Platform.OS !== "web") {
-        const { status } =
-          await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-        if (status !== "granted") {
-          Alert.alert("Permission Required", "Please allow media access!");
-          return;
-        }
-      }
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: "images",
-        allowsEditing: true,
-        aspect,
-        quality: 0.5,
-        base64: true,
-      });
-
-      if (!result.canceled && result.assets?.length) {
-        setImage(result.assets[0].uri);
-      }
-
-      if (result && result.assets && result.assets.length) {
-        // if base64 privoided use or covert
-        if (result.assets[0].base64) {
-          setImageBase64(result.assets[0].base64);
-        } else {
-          const base64 = await FileSystem.readAsStringAsync(
-            result.assets[0].uri,
-            {
-              encoding: FileSystem.EncodingType.Base64,
-            }
-          );
-          setImageBase64(base64);
-        }
-      }
-    } catch (error: any) {
-      setIsError(true);
-      const message = error?.message || "Image picker error";
-      console.error("Image Picker Error:", error);
-      setErrorMessage(message);
-      Alert.alert("Image Picker Error", message);
-    }
-  };
-
   return (
     <ThemedView style={[styles.container]}>
       {/* Cover photo */}
       <TouchableOpacity
         onPress={() =>
-          !isLoading && pickImage(setCoverPhoto, setCoverPhotoBase64, [2, 1])
+          !isLoading &&
+          pickImage(
+            setCoverPhoto,
+            setCoverPhotoBase64,
+            setIsError,
+            setErrorMessage
+          )
         }
       >
         <ThemedView style={styles.coverPhotoContainer}>
@@ -197,7 +154,12 @@ export default function UploadPhoto() {
       <TouchableOpacity
         onPress={() =>
           !isLoading &&
-          pickImage(setProfilePhoto, setProfilePhotoBase64, [1, 1])
+          pickImage(
+            setProfilePhoto,
+            setProfilePhotoBase64,
+            setIsError,
+            setErrorMessage
+          )
         }
         style={[styles.profileImageWrapper]}
       >
