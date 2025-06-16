@@ -6,8 +6,8 @@ import { WalletTab } from "@/components/WalletTab";
 import { Colors } from "@/constants/colors";
 import { getUserData } from "@/storage/authStorage";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Dimensions,
   RefreshControl,
@@ -52,12 +52,14 @@ export default function Menu() {
   const walletBalance = 250.75;
   const isOnline = true;
 
-  // real data
-  useEffect(() => {
-    fetchUserData();
-  }, []);
+  // Reload data
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserData();
+    }, [])
+  );
 
-  // Fetch user data from SecureStore when component mounts
+  // Fetch user data from SecureStore
   async function fetchUserData() {
     setUser(await getUserData());
   }

@@ -121,7 +121,8 @@ export default function UploadPhoto() {
             setCoverPhoto,
             setCoverPhotoBase64,
             setIsError,
-            setErrorMessage
+            setErrorMessage,
+            [2, 1]
           )
         }
       >
@@ -158,10 +159,11 @@ export default function UploadPhoto() {
             setProfilePhoto,
             setProfilePhotoBase64,
             setIsError,
-            setErrorMessage
+            setErrorMessage,
+            [1, 1]
           )
         }
-        style={[styles.profileImageWrapper]}
+        style={[styles.profileImageWrapper, { borderColor: color.borderColor }]}
       >
         {profilePhoto ? (
           <>
@@ -237,6 +239,7 @@ const styles = StyleSheet.create({
     marginTop: -30,
     borderRadius: 60,
     alignSelf: "center",
+    borderWidth: 2,
   },
   profilePhoto: {
     width: 120,

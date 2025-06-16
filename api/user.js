@@ -166,6 +166,8 @@ export async function uploadPhoto(profilePhoto, coverPhoto) {
     const response = await api.patch("/api/user/upload-photo", obj);
     const data = response.data;
     // Save user data to localstorage
+    console.log(data.status);
+    
     if (data.status)
       await saveUserData(data.result.user, data.result.accessToken);
 

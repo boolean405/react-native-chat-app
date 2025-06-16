@@ -12,18 +12,20 @@ import {
   ScrollView,
   StyleSheet,
   TextInput,
+  ToastAndroid,
   TouchableOpacity,
   useColorScheme,
 } from "react-native";
 
-import { changeNames, deletePhoto } from "@/api/user";
+import pickImage from "@/utils/pickImage";
 import { Colors } from "@/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { getUserData } from "@/storage/authStorage";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
+import { changeNames, deletePhoto, uploadPhoto } from "@/api/user";
 import { ThemedButton } from "@/components/ThemedButton";
-import pickImage from "@/utils/pickImage";
+import getImageMimeType from "@/utils/getImageMimeType";
 
 const screenWidth = Dimensions.get("window").width;
 
@@ -46,6 +48,7 @@ const EditProfile: React.FC = () => {
   const [isInvalidUsername, setIsInvalidUsername] = useState(false);
   const [isExistUsername, setIsExistUsername] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [canChange, setCanChange] = useState(false);
@@ -57,8 +60,8 @@ const EditProfile: React.FC = () => {
         if (userData) {
           setName(userData.name || "");
           setUsername(userData.username || "");
-          setProfilePhoto(userData.profilePhoto || null); // if you have it saved
-          setCoverPhoto(userData.coverPhoto || null); // if you have it saved
+          setProfilePhoto(userData.profilePhoto || null);
+          setCoverPhoto(userData.coverPhoto || null);
         }
       } catch (error) {
         console.error("Failed to load user data:", error);
@@ -130,9 +133,30 @@ const EditProfile: React.FC = () => {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
-            // api here
-            const data = await deletePhoto(coverPhoto, "coverPhoto");
-            data.status && setCoverPhoto(null);
+            try {
+              // api here
+              setIsLoading(true);
+              const data = await deletePhoto(coverPhoto, "coverPhoto");
+
+              if (data.status) {
+                setCoverPhoto(null);
+                ToastAndroid.show("Cover photo deleted", ToastAndroid.SHORT);
+              } else {
+                ToastAndroid.show(
+                  data.message || "Failed to delete cover photo",
+                  ToastAndroid.SHORT
+                );
+              }
+            } catch (error: any) {
+              setIsError(true);
+              setErrorMessage(error.message);
+              ToastAndroid.show(
+                error?.message || "Something went wrong",
+                ToastAndroid.SHORT
+              );
+            } finally {
+              setIsLoading(false);
+            }
           },
         },
       ]
@@ -150,12 +174,80 @@ const EditProfile: React.FC = () => {
           style: "destructive",
           onPress: async () => {
             // api here
-            const data = await deletePhoto(profilePhoto, "profilePhoto");
-            data.status && setProfilePhoto(null);
+            setIsLoading(true);
+            try {
+              const data = await deletePhoto(profilePhoto, "profilePhoto");
+
+              if (data.status) {
+                setProfilePhoto(null);
+                ToastAndroid.show("Profile photo deleted", ToastAndroid.SHORT);
+              } else {
+                ToastAndroid.show(
+                  data.message || "Failed to delete profile photo",
+                  ToastAndroid.SHORT
+                );
+              }
+            } catch (error: any) {
+              console.error("Delete profile photo error:", error);
+              ToastAndroid.show(
+                error?.message || "Something went wrong",
+                ToastAndroid.SHORT
+              );
+            } finally {
+              setIsLoading(false);
+            }
           },
         },
       ]
     );
+  };
+
+  const handleCoverUpload = async (uri: string, base64: string) => {
+    Keyboard.dismiss();
+
+    // Api call
+    setIsLoading(true);
+    try {
+      const coverImageType = getImageMimeType(uri);
+
+      const coverPhotoUrl =
+        uri && base64 ? `data:${coverImageType};base64,${base64}` : undefined;
+
+      const data = await uploadPhoto(null, coverPhotoUrl);
+      data.status &&
+        ToastAndroid.show("Cover photo uploaded", ToastAndroid.SHORT);
+      !data.status && Alert.alert("Upload Error", data.message);
+    } catch (error: any) {
+      setIsError(true);
+      setErrorMessage(error.message);
+      Alert.alert("Cover photo upload Error", error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleProfileUpload = async (uri: string, base64: string) => {
+    Keyboard.dismiss();
+
+    // Api call
+    setIsLoading(true);
+    try {
+      const profileImageType = getImageMimeType(uri);
+
+      const profilePhotoUrl =
+        uri && base64 ? `data:${profileImageType};base64,${base64}` : undefined;
+
+      const data = await uploadPhoto(profilePhotoUrl, null);
+      data.status &&
+        ToastAndroid.show("Profile photo uploaded", ToastAndroid.SHORT);
+      !data.status && Alert.alert("Profile photo upload Error", data.message);
+    } catch (error: any) {
+      setIsError(true);
+      setErrorMessage(error.message);
+      Alert.alert("Upload Error", error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -177,7 +269,8 @@ const EditProfile: React.FC = () => {
                 setCoverPhotoBase64,
                 setIsError,
                 setErrorMessage,
-                [2, 1]
+                [2, 1],
+                handleCoverUpload
               )
             }
           >
@@ -216,10 +309,15 @@ const EditProfile: React.FC = () => {
                 setProfilePhoto,
                 setProfilePhotoBase64,
                 setIsError,
-                setErrorMessage
+                setErrorMessage,
+                [1, 1],
+                handleProfileUpload
               )
             }
-            style={[styles.profileImageWrapper]}
+            style={[
+              styles.profileImageWrapper,
+              { borderColor: color.borderColor },
+            ]}
           >
             {profilePhoto ? (
               <>
@@ -280,6 +378,8 @@ const EditProfile: React.FC = () => {
                 editable={!isLoading}
                 onBlur={() => setName(name.trim())}
                 onChangeText={(text) => {
+                  console.log(profilePhoto);
+
                   setIsError(false);
                   const sanitized = text
                     .replace(/^\s+/, "") // Remove leading spaces
@@ -444,6 +544,7 @@ const styles = StyleSheet.create({
     marginTop: -30,
     borderRadius: 60,
     alignSelf: "center",
+    borderWidth: 2,
   },
   profilePhoto: {
     width: 120,

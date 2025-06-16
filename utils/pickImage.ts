@@ -7,7 +7,8 @@ export default async function pickImage(
   setImageBase64: React.Dispatch<React.SetStateAction<string | null>>,
   setIsError?: React.Dispatch<React.SetStateAction<boolean>>,
   setErrorMessage?: React.Dispatch<React.SetStateAction<string>>,
-  aspect?: [number, number]
+  aspect?: [number, number],
+  onUpload?: (uri: string, base64: string) => Promise<void>
 ) {
   try {
     if (Platform.OS !== "web") {
@@ -28,11 +29,15 @@ export default async function pickImage(
       base64: true,
     });
 
+    // if (result.canceled) return false;
     if (!result.canceled && result.assets?.length) {
-      setImage(result.assets[0].uri);
+      const uri = result.assets[0].uri;
+      setImage(uri);
 
       if (result.assets[0].base64) {
-        setImageBase64(result.assets[0].base64);
+        const base64 = result.assets[0].base64;
+        setImageBase64(base64);
+        if (onUpload) await onUpload(uri, base64);
       } else {
         const base64 = await FileSystem.readAsStringAsync(
           result.assets[0].uri,
@@ -41,7 +46,9 @@ export default async function pickImage(
           }
         );
         setImageBase64(base64);
+        if (onUpload) await onUpload(uri, base64);
       }
+      // return true;
     }
   } catch (error: any) {
     const message = error?.message || "Image picker error";

@@ -1,9 +1,10 @@
-import { View, Text, Alert } from "react-native";
+import { Alert } from "react-native";
 import React, { useState } from "react";
 import { ThemedButton } from "@/components/ThemedButton";
 import { getAccessToken } from "@/storage/authStorage";
 import { ThemedText } from "@/components/ThemedText";
 import { refresh } from "@/api/user";
+import { ThemedView } from "@/components/ThemedView";
 
 export default function Chat() {
   const [localToken, setLocalToken] = useState<string | null>("");
@@ -36,7 +37,7 @@ export default function Chat() {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: "center" }}>
+    <ThemedView style={{ flex: 1, justifyContent: "center" }}>
       <ThemedButton
         style={{ alignSelf: "center", padding: 10 }}
         title="Get localstored token"
@@ -61,6 +62,6 @@ export default function Chat() {
       <ThemedText style={{ alignSelf: "center", marginTop: 40 }}>
         Refreshed token is .... {refreshToken}
       </ThemedText>
-    </View>
+    </ThemedView>
   );
 }

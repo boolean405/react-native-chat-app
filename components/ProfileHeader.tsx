@@ -53,13 +53,16 @@ export const ProfileHeader: React.FC<Props> = ({
       activeOpacity={0.8}
       onPress={onPress}
     >
-      <Image
-        source={{ uri: profilePhoto }}
+      <ThemedView
         style={[
-          styles.profilePhoto,
-          { borderColor: textColor, backgroundColor: secondary },
+          styles.profilePhotoContainer,
+          { borderColor: tint, backgroundColor: secondary },
         ]}
-      />
+      >
+        {profilePhoto && (
+          <Image source={{ uri: profilePhoto }} style={[styles.profilePhoto]} />
+        )}
+      </ThemedView>
       <ThemedView style={styles.profileInfo}>
         <ThemedView style={styles.profileHeader}>
           <ThemedView style={{ flex: 1 }}>
@@ -113,12 +116,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 25,
   },
+  profilePhotoContainer: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    borderWidth: 2,
+    marginRight: 20,
+  },
   profilePhoto: {
     width: 90,
     height: 90,
     borderRadius: 45,
     marginRight: 20,
-    borderWidth: 2,
   },
   profileInfo: { flex: 1 },
   profileHeader: {
