@@ -3,6 +3,7 @@ import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
 import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Dimensions,
   Image,
@@ -48,7 +49,8 @@ const EditProfile: React.FC = () => {
   const [isInvalidUsername, setIsInvalidUsername] = useState(false);
   const [isExistUsername, setIsExistUsername] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
+  const [isCoverLoading, setIsCoverLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [canChange, setCanChange] = useState(false);
@@ -135,7 +137,7 @@ const EditProfile: React.FC = () => {
           onPress: async () => {
             try {
               // api here
-              setIsLoading(true);
+              setIsCoverLoading(true);
               const data = await deletePhoto(coverPhoto, "coverPhoto");
 
               if (data.status) {
@@ -155,7 +157,7 @@ const EditProfile: React.FC = () => {
                 ToastAndroid.SHORT
               );
             } finally {
-              setIsLoading(false);
+              setIsCoverLoading(false);
             }
           },
         },
@@ -174,7 +176,7 @@ const EditProfile: React.FC = () => {
           style: "destructive",
           onPress: async () => {
             // api here
-            setIsLoading(true);
+            setIsProfileLoading(true);
             try {
               const data = await deletePhoto(profilePhoto, "profilePhoto");
 
@@ -194,7 +196,7 @@ const EditProfile: React.FC = () => {
                 ToastAndroid.SHORT
               );
             } finally {
-              setIsLoading(false);
+              setIsProfileLoading(false);
             }
           },
         },
@@ -206,7 +208,7 @@ const EditProfile: React.FC = () => {
     Keyboard.dismiss();
 
     // Api call
-    setIsLoading(true);
+    setIsCoverLoading(true);
     try {
       const coverImageType = getImageMimeType(uri);
 
@@ -222,7 +224,7 @@ const EditProfile: React.FC = () => {
       setErrorMessage(error.message);
       Alert.alert("Cover photo upload Error", error.message);
     } finally {
-      setIsLoading(false);
+      setIsCoverLoading(false);
     }
   };
 
@@ -230,7 +232,7 @@ const EditProfile: React.FC = () => {
     Keyboard.dismiss();
 
     // Api call
-    setIsLoading(true);
+    setIsProfileLoading(true);
     try {
       const profileImageType = getImageMimeType(uri);
 
@@ -246,7 +248,7 @@ const EditProfile: React.FC = () => {
       setErrorMessage(error.message);
       Alert.alert("Upload Error", error.message);
     } finally {
-      setIsLoading(false);
+      setIsProfileLoading(false);
     }
   };
 
@@ -275,6 +277,13 @@ const EditProfile: React.FC = () => {
             }
           >
             <ThemedView style={styles.coverPhotoContainer}>
+              {isCoverLoading && (
+                <ActivityIndicator
+                  size="small"
+                  color={color.background}
+                  style={[styles.coverUploadingIcon]}
+                />
+              )}
               {coverPhoto ? (
                 <ThemedView>
                   <Image
@@ -319,6 +328,13 @@ const EditProfile: React.FC = () => {
               { borderColor: color.borderColor },
             ]}
           >
+            {isProfileLoading && (
+              <ActivityIndicator
+                size="small"
+                color={color.background}
+                style={[styles.profileUploadingIcon]}
+              />
+            )}
             {profilePhoto ? (
               <>
                 <Image
@@ -506,23 +522,20 @@ const styles = StyleSheet.create({
 
   coverPhotoContainer: {
     width: screenWidth * 0.9,
-    // height: 180,
-    // borderRadius: 12,
-    // marginBottom: 20,
+    height: 180,
+    overflow: "hidden",
   },
   coverPhoto: {
-    // width: screenWidth * 0.9,
-    height: 180,
+    width: "100%",
+    height: "100%",
     borderRadius: 15,
-    // marginBottom: 20,
   },
   coverPlaceholder: {
-    // width: screenWidth * 0.9,
-    height: 180,
+    width: "100%",
+    height: "100%",
     borderRadius: 15,
     justifyContent: "center",
     alignItems: "center",
-    // marginBottom: 20,
   },
   deleteIconCover: {
     position: "absolute",
@@ -536,30 +549,46 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 45,
     bottom: 0,
-    // backgroundColor: "gray",
-    // borderRadius: 12,
-    // zIndex: 2,
   },
   profileImageWrapper: {
+    // position: "relative",
+    width: 120,
+    height: 120,
     marginTop: -30,
     borderRadius: 60,
     alignSelf: "center",
     borderWidth: 2,
+    overflow: "hidden",
   },
   profilePhoto: {
-    width: 120,
-    height: 120,
+    width: "100%",
+    height: "100%",
     borderRadius: 60,
   },
   profilePlaceholder: {
-    width: 120,
-    height: 120,
+    width: "100%",
+    height: "100%",
     borderRadius: 60,
-    // borderWidth: 2,
     justifyContent: "center",
     alignItems: "center",
   },
   nameText: {
     marginTop: 20,
+  },
+  profileUploadingIcon: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 60,
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    zIndex: 2,
+  },
+  coverUploadingIcon: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 15,
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    zIndex: 2,
   },
 });

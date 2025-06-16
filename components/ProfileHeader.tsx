@@ -122,12 +122,12 @@ const styles = StyleSheet.create({
     borderRadius: 45,
     borderWidth: 2,
     marginRight: 20,
+    overflow: "hidden",
   },
   profilePhoto: {
-    width: 90,
-    height: 90,
+    width: "100%",
+    height: "100%",
     borderRadius: 45,
-    marginRight: 20,
   },
   profileInfo: { flex: 1 },
   profileHeader: {
