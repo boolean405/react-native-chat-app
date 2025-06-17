@@ -25,3 +25,25 @@ export type Post = {
   shareCount?: number;
   user: Omit<User, "posts">;
 };
+
+export type Chat = {
+  id: string;
+  type: "user" | "group";
+  name: string;
+  lastMessage: string;
+  time: string;
+  unreadCount: number;
+  avatarUri?: string;
+};
+
+export type Story = {
+  id: string;
+  name: string;
+  avatarUri: string;
+  hasStory: boolean;
+};
+
+export type BottomSheetOption = {
+  name: string;
+  icon: string;
+};

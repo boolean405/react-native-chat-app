@@ -9,6 +9,7 @@ export type ThemedTextProps = TextProps & {
     | "default"
     | "title"
     | "defaultItalic"
+    | "defaultBold"
     | "subtitle"
     | "param"
     | "link"
@@ -32,6 +33,7 @@ export function ThemedText({
         { color },
         type === "default" ? styles.default : undefined,
         type === "defaultItalic" ? styles.defaultItalic : undefined,
+        type === "defaultBold" ? styles.defaultBold : undefined,
         type === "title" ? styles.title : undefined,
         type === "subtitle" ? styles.subtitle : undefined,
         type === "param" ? styles.param : undefined,
@@ -55,6 +57,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     // lineHeight: 24,
     fontStyle: "italic",
+  },
+  defaultBold: {
+    fontSize: 16,
+    // lineHeight: 24,
+    fontWeight: "bold",
   },
   title: {
     fontSize: 32,

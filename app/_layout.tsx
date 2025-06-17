@@ -11,6 +11,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import SafeScreen from "@/components/SafeScreen";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -24,19 +25,26 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <SafeAreaProvider>
-        <SafeScreen>
-          <Stack>
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="(tab)" options={{ headerShown: false }} />
-            <Stack.Screen name="(menu)" options={{ headerShown: false }} />
-            <Stack.Screen name="(setting)" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-          <StatusBar style="auto" />
-        </SafeScreen>
-      </SafeAreaProvider>
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+        <ThemeProvider
+          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
+        >
+          <SafeAreaProvider>
+            <SafeScreen>
+              <Stack>
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen name="(tab)" options={{ headerShown: false }} />
+                <Stack.Screen name="(menu)" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="(setting)"
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen name="+not-found" />
+              </Stack>
+              <StatusBar style="auto" />
+            </SafeScreen>
+          </SafeAreaProvider>
+        </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }

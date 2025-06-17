@@ -32,7 +32,6 @@ const screenWidth = Dimensions.get("window").width;
 
 const EditProfile: React.FC = () => {
   const colorScheme = useColorScheme();
-  const theme = Colors[colorScheme ?? "light"];
   const color = Colors[colorScheme ?? "light"];
   const router = useRouter();
 
