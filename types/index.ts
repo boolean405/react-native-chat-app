@@ -47,3 +47,13 @@ export type BottomSheetOption = {
   name: string;
   icon: string;
 };
+
+export type MessageStatus = "sent" | "delivered" | "seen";
+
+export interface Message {
+  id: string;
+  content: string;
+  sender: "me" | "other";
+  time: string;
+  status?: MessageStatus; // Only needed for messages sent by "me"
+}
