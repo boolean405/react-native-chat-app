@@ -1,27 +1,29 @@
 import React from "react";
 import { Image } from "expo-image";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, useColorScheme, View } from "react-native";
 
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { Message, User } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
+import { Colors } from "@/constants/colors";
 
 function MessageItem({
   item,
   index,
   messages,
-  color,
-  isTypingItem = false,
+  isTyping = false,
   user,
 }: {
   item: Message;
   index: number;
   messages: Message[];
-  color: any;
-  isTypingItem?: boolean;
+  isTyping?: boolean;
   user: User;
 }) {
+  const colorScheme = useColorScheme();
+  const color = Colors[colorScheme ?? "light"];
+
   const isLastOtherBeforeMe =
     item.sender === "other" &&
     (index === messages.length - 1 || messages[index + 1].sender === "me");
@@ -55,19 +57,16 @@ function MessageItem({
         style={[
           styles.messageContainer,
           item.sender === "me"
-            ? [
-                styles.myMessage,
-                { backgroundColor: "rgba(231, 73, 160, 0.47)" },
-              ]
+            ? [styles.myMessage, { backgroundColor: "rgba(230, 70, 160, 0.5)" }]
             : [styles.otherMessage, { backgroundColor: color.secondary }],
-          isTypingItem && styles.typingMessageContainer,
+          isTyping && styles.typingMessageContainer,
         ]}
       >
-        <ThemedText style={isTypingItem ? styles.typingText : undefined}>
-          {isTypingItem ? "Typing..." : item.content}
+        <ThemedText style={isTyping ? styles.typingText : undefined}>
+          {isTyping ? "Typing..." : item.content}
         </ThemedText>
 
-        {!isTypingItem && (
+        {!isTyping && (
           <View style={styles.timeStatusContainer}>
             <ThemedText type="small" style={styles.timeText}>
               {item.time}
@@ -145,6 +144,6 @@ const styles = StyleSheet.create({
 export default React.memo(MessageItem, (prevProps, nextProps) => {
   return (
     prevProps.item === nextProps.item &&
-    prevProps.isTypingItem === nextProps.isTypingItem
+    prevProps.isTyping === nextProps.isTyping
   );
 });

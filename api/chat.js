@@ -73,3 +73,20 @@ export async function leaveGroup(groupId) {
     throw customError;
   }
 }
+
+// Create or open chat
+export async function createOrOpen(receiverId) {
+  try {
+    await refresh();
+    const response = await api.post("/api/chat", {
+      receiverId,
+    });
+    const data = response.data;
+    return data;
+  } catch (error) {
+    const message = error.response?.data?.message || "Something went wrong";
+    const customError = new Error(message);
+    customError.status = error.response?.status;
+    throw customError;
+  }
+}

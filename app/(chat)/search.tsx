@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   useColorScheme,
+  ToastAndroid,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedView } from "@/components/ThemedView";
@@ -18,11 +19,13 @@ import { Message } from "@/types";
 import useDebounce from "@/hooks/useDebounce";
 import { searchUser } from "@/api/user";
 import SearchItem from "@/components/SearchItem.";
+import { createOrOpen } from "@/api/chat";
 
 export default function Search() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const color = Colors[colorScheme ?? "light"];
+  const inputRef = useRef<TextInput>(null);
   const { chatId, chatName } = useLocalSearchParams();
 
   const [keyword, setKeyword] = useState("");
@@ -30,8 +33,8 @@ export default function Search() {
 
   const [results, setResults] = useState<any>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  const inputRef = useRef<TextInput>(null);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isError, setIsError] = useState(false);
 
   // Filter types array
   const filterTypes: string[] = ["All", "Online", "Male", "Female", "Group"];
@@ -85,7 +88,32 @@ export default function Search() {
     };
 
     fetchResults();
-  }, [debouncedKeyword, selectedFilter]); // <== Add selectedFilter as dependency
+  }, [debouncedKeyword, selectedFilter]);
+
+  // handle search result
+  const handleResult = async (item: any) => {
+    // Api call
+    try {
+      const data = await createOrOpen(item._id);
+
+      router.push({
+        pathname: "/(chat)",
+        params: {
+          chatId: data.result._id,
+          chatName: data.result.name,
+        },
+      });
+
+      // setResults(data.result.users);
+    } catch (error: any) {
+      ToastAndroid.show(error.message, ToastAndroid.SHORT);
+      setIsError(true);
+      console.log(error.message);
+      setErrorMessage(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -161,22 +189,23 @@ export default function Search() {
         </ThemedText>
       )}
 
-      {/* Results */}
+      {/* Search results */}
       <FlatList
         data={results}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
           <SearchItem
             user={item}
-            onPress={() =>
-              router.push({
-                pathname: "/(chat)",
-                params: {
-                  chatId: item._id,
-                  chatName: item.name,
-                },
-              })
-            }
+            onPress={() => {
+              handleResult(item);
+              // router.push({
+              //   pathname: "/(chat)",
+              //   params: {
+              //     chatId: item._id,
+              //     chatName: item.name,
+              //   },
+              // });
+            }}
           />
         )}
         ListEmptyComponent={

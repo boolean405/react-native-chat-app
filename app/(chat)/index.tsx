@@ -1,20 +1,21 @@
-import { useRouter, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
-  StyleSheet,
   FlatList,
-  TextInput,
-  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
   useColorScheme,
 } from "react-native";
+
+import { Message } from "@/types";
+import { Colors } from "@/constants/colors";
 import { Ionicons } from "@expo/vector-icons";
+import MessageItem from "@/components/MessageItem";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
-import { Colors } from "@/constants/colors";
-import MessageItem from "@/components/MessageItem";
-import { Message } from "@/types";
 
 const initialMessages: Message[] = [
   { _id: "1", content: "Hello!", sender: "other", time: "2:00 PM" },
@@ -70,7 +71,6 @@ export default function Messages() {
   const [isTyping, setIsTyping] = useState(false);
 
   const { chatId, chatName } = useLocalSearchParams();
-  console.log(chatId, chatName);
 
   // Show latest message
   useEffect(() => {
@@ -212,9 +212,8 @@ export default function Messages() {
                   ]
                 : messages
             }
-            color={color}
-            isTypingItem={item._id === "typing"}
-            user= {item.sender}
+            isTyping={item._id === "typing"}
+            user={item.sender}
           />
         )}
         style={styles.chatList}
