@@ -55,7 +55,10 @@ export default function BottomSheetAction({
                   color={color.icon}
                 />
                 <ThemedText
-                  style={[index === 0 && { color: "red" }, styles.nameText]}
+                  style={[
+                    name === "Delete" && { color: "red" },
+                    styles.nameText,
+                  ]}
                 >
                   {name}
                 </ThemedText>

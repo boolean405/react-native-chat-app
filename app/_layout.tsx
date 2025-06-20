@@ -32,9 +32,9 @@ export default function RootLayout() {
           <SafeAreaProvider>
             <SafeScreen>
               <Stack>
-                <Stack.Screen name="(chat)" options={{ headerShown: false }} />
                 <Stack.Screen name="(auth)" options={{ headerShown: false }} />
                 <Stack.Screen name="(tab)" options={{ headerShown: false }} />
+                <Stack.Screen name="(chat)" options={{ headerShown: false }} />
                 <Stack.Screen name="(menu)" options={{ headerShown: false }} />
                 <Stack.Screen
                   name="(setting)"

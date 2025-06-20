@@ -4,7 +4,7 @@ import { StyleSheet, View } from "react-native";
 
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
-import { Message } from "@/types";
+import { Message, User } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 
 function MessageItem({
@@ -13,12 +13,14 @@ function MessageItem({
   messages,
   color,
   isTypingItem = false,
+  user,
 }: {
   item: Message;
   index: number;
   messages: Message[];
   color: any;
   isTypingItem?: boolean;
+  user: User;
 }) {
   const isLastOtherBeforeMe =
     item.sender === "other" &&
@@ -39,7 +41,7 @@ function MessageItem({
           {isLastOtherBeforeMe ? (
             <Image
               source={{
-                uri: "https://randomuser.me/api/portraits/men/75.jpg",
+                uri: user.profilePhoto,
               }}
               style={styles.avatar}
             />
@@ -53,7 +55,10 @@ function MessageItem({
         style={[
           styles.messageContainer,
           item.sender === "me"
-            ? [styles.myMessage, { backgroundColor: "rgba(231, 73, 160, 0.47)" }]
+            ? [
+                styles.myMessage,
+                { backgroundColor: "rgba(231, 73, 160, 0.47)" },
+              ]
             : [styles.otherMessage, { backgroundColor: color.secondary }],
           isTypingItem && styles.typingMessageContainer,
         ]}

@@ -24,7 +24,7 @@ export default function StoryItem({
           { borderColor: color.main },
         ]}
       >
-        <Image source={{ uri: story.avatarUri }} style={styles.storyAvatar} />
+        <Image source={{ uri: story.storyUri }} style={styles.storyAvatar} />
       </ThemedView>
       <ThemedText style={styles.storyName} numberOfLines={1}>
         {story.name}

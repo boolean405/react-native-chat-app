@@ -1,7 +1,14 @@
-import React, { useRef, useState } from "react";
-import { FlatList, StyleSheet, useColorScheme, TextInput } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  FlatList,
+  StyleSheet,
+  useColorScheme,
+  TextInput,
+  Alert,
+  ToastAndroid,
+} from "react-native";
 
-import { BottomSheetOption, Chat, Story } from "@/types";
+import { BottomSheetOption, Chat, Story, User } from "@/types";
 import { Colors } from "@/constants/colors";
 import ChatItem from "@/components/ChatItem";
 import { Ionicons } from "@expo/vector-icons";
@@ -9,134 +16,72 @@ import StoryItem from "@/components/StoryItem";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import MyStoryItem from "@/components/MyStoryItem";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import BottomSheetAction from "@/components/BottomSheetActions";
+import { createGroup, deleteChat, getAllChats, leaveGroup } from "@/api/chat";
+import { searchUser } from "@/api/user";
+import { TouchableOpacity } from "react-native";
+import { getUserData } from "@/storage/authStorage";
+import { APP_NAME } from "@/constants";
 
-const chats: Chat[] = [
-  {
-    id: "1",
-    type: "user",
-    name: "John Doe",
-    lastMessage: "Hey, how are you?",
-    time: "2:00 PM",
-    unreadCount: 2,
-    avatarUri: "https://randomuser.me/api/portraits/men/1.jpg",
-  },
-  {
-    id: "2",
-    type: "group",
-    name: "Family Group",
-    lastMessage: "Mom: Dinner is ready!",
-    time: "1:45 PM",
-    unreadCount: 0,
-    avatarUri: "https://cdn-icons-png.flaticon.com/512/1946/1946429.png",
-  },
-  {
-    id: "3",
-    type: "user",
-    name: "Sarah Lane",
-    lastMessage: "See you tomorrow.",
-    time: "1:30 PM",
-    unreadCount: 1,
-    avatarUri: "https://randomuser.me/api/portraits/women/2.jpg",
-  },
-  {
-    id: "4",
-    type: "user",
-    name: "John Doe",
-    lastMessage: "Hey, how are you?",
-    time: "2:00 PM",
-    unreadCount: 2,
-    avatarUri: "https://randomuser.me/api/portraits/men/1.jpg",
-  },
-  {
-    id: "5",
-    type: "group",
-    name: "Family Group",
-    lastMessage: "Mom: Dinner is ready!",
-    time: "1:45 PM",
-    unreadCount: 0,
-    avatarUri: "https://cdn-icons-png.flaticon.com/512/1946/1946429.png",
-  },
-  {
-    id: "6",
-    type: "user",
-    name: "Sarah Lane",
-    lastMessage: "See you tomorrow.",
-    time: "1:30 PM",
-    unreadCount: 1,
-    avatarUri: "https://randomuser.me/api/portraits/women/2.jpg",
-  },
-  {
-    id: "7",
-    type: "user",
-    name: "John Doe",
-    lastMessage: "Hey, how are you?",
-    time: "2:00 PM",
-    unreadCount: 2,
-    avatarUri: "https://randomuser.me/api/portraits/men/1.jpg",
-  },
-  {
-    id: "8",
-    type: "group",
-    name: "Family Group",
-    lastMessage: "Mom: Dinner is ready!",
-    time: "1:45 PM",
-    unreadCount: 0,
-    avatarUri: "https://cdn-icons-png.flaticon.com/512/1946/1946429.png",
-  },
-  {
-    id: "9",
-    type: "user",
-    name: "Sarah Lane",
-    lastMessage: "See you tomorrow.",
-    time: "1:30 PM",
-    unreadCount: 1,
-    avatarUri: "https://randomuser.me/api/portraits/women/2.jpg",
-  },
-];
+// Chats list
+
+// const chats: Chat[] = [
+//   {
+//     _id: "1",
+//     isGroupChat: false,
+//     name: "John Doe",
+//     latestMessage: "Hey, how are you?",
+//     unreadCount: 2,
+//     photo: "https://randomuser.me/api/portraits/men/1.jpg",
+//     users: [],
+//     groupAdmins: [],
+//     deletedInfo: [],
+//     createdAt: new Date(),
+//     updatedAt: new Date(),
+//   },
+// ];
 
 // Stories list
 const stories: Story[] = [
   {
-    id: "s2",
+    _id: "s2",
     name: "Family Group",
-    avatarUri: "https://cdn-icons-png.flaticon.com/512/1946/1946429.png",
+    storyUri: "https://cdn-icons-png.flaticon.com/512/1946/1946429.png",
     hasStory: false,
   },
   {
-    id: "s3",
+    _id: "s3",
     name: "Sarah Lane",
-    avatarUri: "https://randomuser.me/api/portraits/women/2.jpg",
+    storyUri: "https://randomuser.me/api/portraits/women/2.jpg",
     hasStory: true,
   },
   {
-    id: "s4",
+    _id: "s4",
     name: "Mike Ross",
-    avatarUri: "https://randomuser.me/api/portraits/men/3.jpg",
+    storyUri: "https://randomuser.me/api/portraits/men/3.jpg",
     hasStory: false,
   },
   {
-    id: "s5",
+    _id: "s5",
     name: "Mike Ross",
-    avatarUri: "https://randomuser.me/api/portraits/men/3.jpg",
+    storyUri: "https://randomuser.me/api/portraits/men/3.jpg",
     hasStory: false,
   },
   {
-    id: "s6",
+    _id: "s6",
     name: "Mike Ross",
-    avatarUri: "https://randomuser.me/api/portraits/men/3.jpg",
+    storyUri: "https://randomuser.me/api/portraits/men/3.jpg",
     hasStory: false,
   },
 ];
 
 const bottomSheetOptions: BottomSheetOption[] = [
-  { name: "Delete", icon: "trash-outline" },
-  { name: "Archive", icon: "archive-outline" },
-  { name: "Mute", icon: "volume-mute-outline" },
-  { name: "Create group chat with", icon: "people-outline" },
-  { name: "Leave group", icon: "exit-outline" },
-  { name: "Cancel", icon: "close-outline" },
+  { _id: "1", name: "Archive", icon: "archive-outline" },
+  { _id: "2", name: "Mute", icon: "volume-mute-outline" },
+  { _id: "3", name: "Create group chat with", icon: "people-outline" },
+  { _id: "4", name: "Leave group", icon: "exit-outline" },
+  { _id: "5", name: "Delete", icon: "trash-outline" },
 ];
 
 // Main Component
@@ -147,50 +92,195 @@ export default function ChatHomeScreen() {
 
   const [isSheetVisible, setSheetVisible] = useState(false);
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  // const [searchText, setSearchText] = useState("");
+  // const [searchResults, setSearchResults] = useState([]);
+  // const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
+  useEffect(() => {
+    fetchChatsData();
+  }, []);
+
+  // Reload data
+  useFocusEffect(
+    useCallback(() => {
+      const loadChats = async () => {
+        await fetchChatsData();
+        await fetchUserData();
+      };
+      loadChats();
+    }, [])
+  );
+
+  // Fetch user data from SecureStore
+  async function fetchUserData() {
+    setUser(await getUserData());
+  }
+
+  // Refresh
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await fetchChatsData();
+
+      // Delay to show spinner longer
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    } catch (error) {
+      console.error("Refresh failed:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Fetch chats data from SecureStore
+  async function fetchChatsData() {
+    try {
+      const data = await getAllChats();
+      setChats(data.result);
+    } catch (error) {
+      console.error("Failed to fetch chats:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // Long press for showing models
   const handleLongPress = (chat: Chat) => {
     setSelectedChat(chat);
     setSheetVisible(true);
   };
 
-  const handleOptionSelect = (index: number) => {
-    const isUser = selectedChat?.type === "user";
+  const handleOptionSelect = async (index: number) => {
+    const isUser = selectedChat && selectedChat.isGroupChat === false;
     const options = [
-      "Delete",
       "Archive",
-      ...(isUser ? [`Create Group Chat with ${selectedChat.name}`] : []),
       "Mute",
-      "Cancel",
+      ...(isUser
+        ? [`Create Group Chat with ${selectedChat.name}`]
+        : ["Leave group"]),
+      "Delete",
     ];
 
     const selectedOption = options[index];
 
-    if (selectedOption === "Cancel") return;
-
-    console.log(`${selectedOption}`, selectedChat?.name);
-    setSheetVisible(false);
+    try {
+      if (selectedOption === "Delete") {
+        Alert.alert(
+          "Delete Chat",
+          "Are you sure you want to delete this chat?",
+          [
+            { text: "Cancel", style: "cancel" },
+            {
+              text: "Delete",
+              style: "destructive",
+              onPress: async () => {
+                setIsLoading(true);
+                setSheetVisible(false);
+                try {
+                  const data = await deleteChat(selectedChat?._id);
+                  if (data.status) {
+                    ToastAndroid.show(data.message, ToastAndroid.SHORT);
+                  }
+                  await fetchChatsData();
+                } catch (err: any) {
+                  ToastAndroid.show(err.message, ToastAndroid.SHORT);
+                } finally {
+                  setIsLoading(false);
+                  setSheetVisible(false);
+                }
+              },
+            },
+          ]
+        );
+      } else if (
+        selectedOption === `Create Group Chat with ${selectedChat?.name}`
+      ) {
+        setIsLoading(true);
+        setSheetVisible(false);
+        try {
+          const userIds = selectedChat?.users?.map((user) => user._id) ?? [];
+          const data = await createGroup(selectedChat?.name, userIds);
+          if (data.status) {
+            ToastAndroid.show(data.message, ToastAndroid.SHORT);
+          }
+          await fetchChatsData();
+        } catch (err: any) {
+          ToastAndroid.show(err.message, ToastAndroid.SHORT);
+        } finally {
+          setIsLoading(false);
+          setSheetVisible(false);
+        }
+      } else if (selectedOption === "Leave group") {
+        Alert.alert(
+          "Leave Group",
+          "Are you sure you want to leave from this group?",
+          [
+            { text: "Cancel", style: "cancel" },
+            {
+              text: "Leave",
+              style: "destructive",
+              onPress: async () => {
+                setIsLoading(true);
+                setSheetVisible(false);
+                try {
+                  const data = await leaveGroup(selectedChat?._id);
+                  if (data.status) {
+                    ToastAndroid.show(data.message, ToastAndroid.SHORT);
+                  }
+                  await fetchChatsData();
+                } catch (err: any) {
+                  ToastAndroid.show(err.message, ToastAndroid.SHORT);
+                } finally {
+                  setIsLoading(false);
+                  setSheetVisible(false);
+                }
+              },
+            },
+          ]
+        );
+      }
+    } catch (error: any) {
+      ToastAndroid.show(error.message, ToastAndroid.SHORT);
+      console.log(error.message);
+      setIsLoading(false);
+      setSheetVisible(false);
+    }
   };
 
   return (
     <ThemedView style={styles.container}>
       {/* Header */}
       <ThemedView style={styles.header}>
-        <ThemedText type="title">K Khay</ThemedText>
+        <ThemedText type="title">{APP_NAME}</ThemedText>
       </ThemedView>
 
       {/* Chats */}
       <FlatList
         data={chats}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <ChatItem
-            chat={item}
-            color={color}
-            onPress={() => console.log(item.id)}
-            onProfilePress={() => console.log(item.name)}
-            onLongPress={() => handleLongPress(item)}
-          />
-        )}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => {
+          return (
+            <ChatItem
+              chat={item}
+              onPress={() =>
+                router.push({
+                  pathname: "/(chat)",
+                  params: {
+                    chatId: item._id,
+                    chatName: item.name,
+                  },
+                })
+              }
+              onProfilePress={() => console.log(item.name)}
+              onLongPress={() => handleLongPress(item)}
+            />
+          );
+        }}
+        refreshing={isRefreshing}
+        onRefresh={handleRefresh}
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => (
           <ThemedView
@@ -201,35 +291,39 @@ export default function ChatHomeScreen() {
         ListHeaderComponent={
           <>
             {/* Search */}
-            <ThemedView
-              style={[
-                styles.inputContainer,
-                {
-                  borderColor: color.borderColor,
-                  backgroundColor: color.secondary,
-                },
-              ]}
+            <TouchableOpacity
+              onPress={() => router.push("/(chat)/search")}
+              // activeOpacity={0.9}
             >
-              <Ionicons
-                name="search-outline"
-                size={24}
-                style={[{ color: color.icon, paddingHorizontal: 20 }]}
-              />
-              <TextInput
-                style={[styles.textInput, { color: color.primary }]}
-                placeholder="Search"
-                textContentType="name"
-                autoComplete="name"
-                placeholderTextColor="gray"
-                autoCapitalize="none"
-              />
-            </ThemedView>
+              <ThemedView
+                style={[
+                  styles.inputContainer,
+                  {
+                    borderColor: color.borderColor,
+                    backgroundColor: color.secondary,
+                  },
+                ]}
+              >
+                <Ionicons
+                  name="search-outline"
+                  size={24}
+                  style={{ color: color.icon, paddingHorizontal: 20 }}
+                />
+                <TextInput
+                  style={[styles.textInput, { color: color.primary }]}
+                  placeholder="Search"
+                  placeholderTextColor="gray"
+                  editable={false}
+                  pointerEvents="none"
+                />
+              </ThemedView>
+            </TouchableOpacity>
 
             {/* Stories */}
             <FlatList
               data={stories}
               horizontal
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item._id}
               renderItem={({ item }) => (
                 <StoryItem
                   story={item}
@@ -243,7 +337,7 @@ export default function ChatHomeScreen() {
                 { borderBottomColor: color.borderColor },
               ]}
               contentContainerStyle={{ paddingHorizontal: 12 }}
-              ListHeaderComponent={<MyStoryItem color={color} />}
+              ListHeaderComponent={user && <MyStoryItem user={user} />}
             />
           </>
         }
@@ -253,16 +347,16 @@ export default function ChatHomeScreen() {
         color={color}
         visible={isSheetVisible}
         title={selectedChat?.name}
-        options={bottomSheetOptions.flatMap(({ name, icon }) => {
-          if (name === "Create group chat with") {
-            return selectedChat?.type === "user"
-              ? [{ name: `${name} ${selectedChat.name}`, icon }]
+        options={bottomSheetOptions.flatMap(({ _id, name, icon }) => {
+          if (_id === "3") {
+            return selectedChat?.isGroupChat === false
+              ? [{ _id, name: `${name} ${selectedChat.name}`, icon }]
               : [];
           }
-          if (name === "Leave group") {
-            return selectedChat?.type === "group" ? [{ name, icon }] : [];
+          if (_id === "4") {
+            return selectedChat?.isGroupChat ? [{ _id, name, icon }] : [];
           }
-          return [{ name, icon }];
+          return [{ _id, name, icon }];
         })}
         onSelect={handleOptionSelect}
         onCancel={() => setSheetVisible(false)}
@@ -341,7 +435,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderRadius: 25,
-    borderWidth: 1,
+    // borderWidth: 0.2,
     // width: "90%",
     // paddingHorizontal: 10,
     marginVertical: 10,

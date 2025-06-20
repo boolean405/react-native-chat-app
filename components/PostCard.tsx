@@ -7,9 +7,9 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 type Props = {
   post: Post;
   colorScheme: "light" | "dark";
-  onLove: (id: string) => void;
-  onComment: (id: string) => void;
-  onShare: (id: string) => void;
+  onLove: (_id: string) => void;
+  onComment: (_id: string) => void;
+  onShare: (_id: string) => void;
   onUserPress: (user: Omit<User, "posts">) => void;
 };
 
@@ -61,7 +61,7 @@ const PostCard: React.FC<Props> = ({
       )}
       <View style={styles.postActionsRow}>
         <TouchableOpacity
-          onPress={() => onLove(post.id)}
+          onPress={() => onLove(post._id)}
           style={styles.actionButton}
         >
           <Text
@@ -77,7 +77,7 @@ const PostCard: React.FC<Props> = ({
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => onComment(post.id)}
+          onPress={() => onComment(post._id)}
           style={styles.actionButton}
         >
           <Text style={[styles.actionIcon, { color: theme.icon }]}>💬</Text>
@@ -86,7 +86,7 @@ const PostCard: React.FC<Props> = ({
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => onShare(post.id)}
+          onPress={() => onShare(post._id)}
           style={styles.actionButton}
         >
           <Text style={[styles.actionIcon, { color: theme.icon }]}>🔗</Text>

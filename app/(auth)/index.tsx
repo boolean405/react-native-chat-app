@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { useEffect, useRef } from "react";
 import { Animated, Dimensions, StyleSheet } from "react-native";
 
+import { APP_NAME, APP_TAGLINE } from "@/constants";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { getUserData } from "@/storage/authStorage";
@@ -57,9 +58,9 @@ export default function FlashScreen() {
         />
         <ThemedView style={styles.header}>
           <ThemedText type="title" style={styles.title}>
-            K Khay
+            {APP_NAME}
           </ThemedText>
-          <ThemedText type="subtitle">Explore the World</ThemedText>
+          <ThemedText type="subtitle">{APP_TAGLINE}</ThemedText>
         </ThemedView>
       </Animated.View>
     </ThemedView>

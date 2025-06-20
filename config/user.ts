@@ -4,7 +4,7 @@ export async function fetchUser(): Promise<User> {
   await new Promise((res) => setTimeout(res, 800));
 
   const user: User = {
-    id: "1",
+    _id: "1",
     name: "Jane Doe",
     username: "boolean",
     email: "jane@example.com", // add missing fields
@@ -21,7 +21,7 @@ export async function fetchUser(): Promise<User> {
 
   const posts: Post[] = [
     {
-      id: "p1",
+      _id: "p1",
       type: "text",
       content: "Hello world! My first post!",
       createdAt: "2025-06-07T10:00:00Z",
@@ -32,7 +32,7 @@ export async function fetchUser(): Promise<User> {
       user: userForPost,
     },
     {
-      id: "p2",
+      _id: "p2",
       type: "photo",
       content: "Check out this cool place I visited.",
       imageUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
@@ -44,7 +44,7 @@ export async function fetchUser(): Promise<User> {
       user: userForPost,
     },
     {
-      id: "p3",
+      _id: "p3",
       type: "video",
       content: "Funny moment from my trip 😂",
       videoUrl:

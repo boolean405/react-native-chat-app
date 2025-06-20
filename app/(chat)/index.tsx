@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
@@ -17,45 +17,45 @@ import MessageItem from "@/components/MessageItem";
 import { Message } from "@/types";
 
 const initialMessages: Message[] = [
-  { id: "1", content: "Hello!", sender: "other", time: "2:00 PM" },
-  { id: "2", content: "Hi, how are you?", sender: "other", time: "2:01 PM" },
+  { _id: "1", content: "Hello!", sender: "other", time: "2:00 PM" },
+  { _id: "2", content: "Hi, how are you?", sender: "other", time: "2:01 PM" },
   {
-    id: "3",
+    _id: "3",
     content:
       "I'm good, thanks! lorem lorem lorem lorem lorem lorem ipsum .hello world, lo fi , hi , details, my book,",
     sender: "other",
     time: "2:02 PM",
   },
-  { id: "4", content: "Bye!", sender: "me", time: "2:02 PM" },
-  { id: "5", content: "Hello!", sender: "me", time: "2:00 PM" },
-  { id: "6", content: "Hi, how are you?", sender: "me", time: "2:01 PM" },
+  { _id: "4", content: "Bye!", sender: "me", time: "2:02 PM" },
+  { _id: "5", content: "Hello!", sender: "me", time: "2:00 PM" },
+  { _id: "6", content: "Hi, how are you?", sender: "me", time: "2:01 PM" },
   {
-    id: "7",
+    _id: "7",
     content:
       "I'm good, thanks! lorem lorem lorem lorem lorem lorem ipsum .hello world, lo fi , hi , details, my book,",
     sender: "other",
     time: "2:02 PM",
   },
-  { id: "8", content: "Bye!", sender: "other", time: "2:02 PM" },
-  { id: "9", content: "Hi, how are you?", sender: "other", time: "2:01 PM" },
+  { _id: "8", content: "Bye!", sender: "other", time: "2:02 PM" },
+  { _id: "9", content: "Hi, how are you?", sender: "other", time: "2:01 PM" },
   {
-    id: "10",
+    _id: "10",
     content:
       "I'm good, thanks! lorem lorem lorem lorem lorem lorem ipsum .hello world, lo fi , hi , details, my book,",
     sender: "other",
     time: "2:02 PM",
   },
-  { id: "11", content: "Bye!", sender: "other", time: "2:02 PM" },
-  { id: "12", content: "Hello!", sender: "me", time: "2:00 PM" },
-  { id: "13", content: "Hi, how are you?", sender: "me", time: "2:01 PM" },
+  { _id: "11", content: "Bye!", sender: "other", time: "2:02 PM" },
+  { _id: "12", content: "Hello!", sender: "me", time: "2:00 PM" },
+  { _id: "13", content: "Hi, how are you?", sender: "me", time: "2:01 PM" },
   {
-    id: "14",
+    _id: "14",
     content:
       "I'm good, thanks! lorem lorem lorem lorem lorem lorem ipsum .hello world, lo fi , hi , details, my book,",
     sender: "me",
     time: "2:02 PM",
   },
-  { id: "15", content: "Bye!", sender: "other", time: "2:02 PM" },
+  { _id: "15", content: "Bye!", sender: "other", time: "2:02 PM" },
 ];
 
 export default function Messages() {
@@ -68,6 +68,9 @@ export default function Messages() {
   const [messages, setMessages] = useState(initialMessages);
   const [newMessage, setNewMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+
+  const { chatId, chatName } = useLocalSearchParams();
+  console.log(chatId, chatName);
 
   // Show latest message
   useEffect(() => {
@@ -90,7 +93,7 @@ export default function Messages() {
       setTimeout(() => {
         setMessages((msgs) =>
           msgs.map((msg) =>
-            msg.id === last.id ? { ...msg, status: "delivered" } : msg
+            msg._id === last._id ? { ...msg, status: "delivered" } : msg
           )
         );
       }, 1000);
@@ -99,7 +102,7 @@ export default function Messages() {
       setTimeout(() => {
         setMessages((msgs) =>
           msgs.map((msg) =>
-            msg.id === last.id ? { ...msg, status: "seen" } : msg
+            msg._id === last._id ? { ...msg, status: "seen" } : msg
           )
         );
       }, 3000);
@@ -110,7 +113,7 @@ export default function Messages() {
     if (!newMessage.trim()) return;
 
     const createdMessage: Message = {
-      id: Date.now().toString(),
+      _id: Date.now().toString(),
       content: newMessage.trim(),
       sender: "me",
       time: new Date().toLocaleTimeString([], {
@@ -135,7 +138,7 @@ export default function Messages() {
     <KeyboardAvoidingView
       style={[styles.container, { backgroundColor: color.background }]}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 20}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 0}
     >
       {/* Header */}
       <ThemedView
@@ -145,7 +148,7 @@ export default function Messages() {
           <Ionicons name="chevron-back-outline" size={24} color={color.icon} />
         </TouchableOpacity>
         <ThemedText type="subtitle" style={styles.headerTitle}>
-          John Doe
+          {chatName && chatName}
         </ThemedText>
         <ThemedView style={styles.headerIcons}>
           <TouchableOpacity onPress={() => console.log("Voice call")}>
@@ -183,7 +186,7 @@ export default function Messages() {
             ? [
                 ...messages,
                 {
-                  id: "typing",
+                  _id: "typing",
                   content: "Typing...",
                   sender: "other",
                   time: "",
@@ -191,7 +194,7 @@ export default function Messages() {
               ]
             : messages
         }
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         renderItem={({ item, index }) => (
           <MessageItem
             item={item}
@@ -201,7 +204,7 @@ export default function Messages() {
                 ? [
                     ...messages,
                     {
-                      id: "typing",
+                      _id: "typing",
                       content: "Typing...",
                       sender: "other",
                       time: "",
@@ -210,7 +213,8 @@ export default function Messages() {
                 : messages
             }
             color={color}
-            isTypingItem={item.id === "typing"}
+            isTypingItem={item._id === "typing"}
+            user= {item.sender}
           />
         )}
         style={styles.chatList}
@@ -260,7 +264,7 @@ export default function Messages() {
 
 // Styles
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: { flex: 1, paddingBottom: 20 },
   header: {
     padding: 15,
     // paddingRight: 20,
@@ -278,7 +282,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    paddingVertical: 15,
+    // paddingVertical: 15,
+    // marginVertical: 10,
   },
   inputTextContainer: {
     height: 40,

@@ -12,10 +12,11 @@ import {
 } from "react-native";
 
 import { existEmail } from "@/api/user";
+import { Ionicons } from "@expo/vector-icons";
 import { ThemedButton } from "@/components/ThemedButton";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Ionicons } from "@expo/vector-icons";
+import { APP_NAME, APP_TAGLINE } from "@/constants";
 
 export default function LoginOrRegister() {
   const [email, setEmail] = useState("");
@@ -78,8 +79,8 @@ export default function LoginOrRegister() {
             style={styles.logoImage}
             source={require("@/assets/images/logo.png")}
           />
-          <ThemedText type="title">K Khay</ThemedText>
-          <ThemedText type="subtitle">Explore the World</ThemedText>
+          <ThemedText type="title">{APP_NAME}</ThemedText>
+          <ThemedText type="subtitle">{APP_TAGLINE}</ThemedText>
           <ThemedText style={styles.titleText}>
             Enter your email address to login or register
           </ThemedText>

@@ -1,12 +1,17 @@
 import { Image } from "expo-image";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity, useColorScheme } from "react-native";
 
-import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { Colors } from "@/constants/colors";
+import { User } from "@/types";
+import { Ionicons } from "@expo/vector-icons";
 
 // My Story Item with + icon
-export default function MyStoryItem({ color }: { color: any }) {
+export default function MyStoryItem({ user }: { user: User }) {
+  const colorScheme = useColorScheme();
+  const color = Colors[colorScheme ?? "light"];
+
   return (
     <TouchableOpacity
       style={styles.storyItem}
@@ -16,13 +21,15 @@ export default function MyStoryItem({ color }: { color: any }) {
         style={[styles.storyAvatarWrapper, styles.myStoryAvatarWrapper]}
       >
         <Image
-          source={{ uri: "https://randomuser.me/api/portraits/men/99.jpg" }} // Your avatar
+          source={{
+            uri: user.profilePhoto,
+          }}
           style={styles.storyAvatar}
         />
         <ThemedView
           style={[styles.plusIconWrapper, { backgroundColor: color.secondary }]}
         >
-          <Ionicons name="add" size={24} color={color.main} />
+          <Ionicons name="add-outline" size={24} color={color.main} />
         </ThemedView>
       </ThemedView>
       <ThemedText style={styles.storyName} numberOfLines={1}>

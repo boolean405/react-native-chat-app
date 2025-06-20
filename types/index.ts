@@ -1,5 +1,5 @@
 export type User = {
-  id: string;
+  _id: string;
   name: string;
   username: string;
   email: string;
@@ -13,7 +13,7 @@ export type User = {
 };
 
 export type Post = {
-  id: string;
+  _id: string;
   type: "text" | "photo" | "video";
   content: string;
   imageUrl?: string;
@@ -27,33 +27,42 @@ export type Post = {
 };
 
 export type Chat = {
-  id: string;
-  type: "user" | "group";
+  _id: string;
   name: string;
-  lastMessage: string;
-  time: string;
+  isGroupChat: boolean;
+  users: User[];
+  latestMessage: string;
+  groupAdmins: User[];
+  photo: string;
   unreadCount: number;
-  avatarUri?: string;
+  deletedInfo: {
+    user: User;
+    deletedAt: Date;
+  }[];
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export type Story = {
-  id: string;
+  _id: string;
   name: string;
-  avatarUri: string;
+  storyUri: string;
   hasStory: boolean;
+  user?: User;
 };
 
 export type BottomSheetOption = {
+  _id: string;
   name: string;
   icon: string;
 };
 
 export type MessageStatus = "sent" | "delivered" | "seen";
 
-export interface Message {
-  id: string;
+export type Message = {
+  _id: string;
   content: string;
   sender: "me" | "other";
   time: string;
   status?: MessageStatus; // Only needed for messages sent by "me"
-}
+};

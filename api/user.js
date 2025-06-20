@@ -323,3 +323,17 @@ export async function deletePhoto(photo, type) {
     throw customError;
   }
 }
+
+// Search user with keyword
+export async function searchUser(keyword) {
+  try {
+    await refresh();
+    const response = await api.get(`/api/user/search?keyword=${keyword}`);
+    return response.data;
+  } catch (error) {
+    const message = error.response?.data?.message || "Something went wrong";
+    const customError = new Error(message);
+    customError.status = error.response?.status;
+    throw customError;
+  }
+}

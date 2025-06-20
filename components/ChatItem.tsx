@@ -1,34 +1,45 @@
 import React from "react";
 import { Image } from "expo-image";
-import { TouchableOpacity, StyleSheet } from "react-native";
+import { TouchableOpacity, StyleSheet, useColorScheme } from "react-native";
 
 import { Chat } from "@/types";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
+import formatChatDate from "@/utils/formatChatDate";
+import { Colors } from "@/constants/colors";
 
 export default function ChatItem({
   chat,
-  color,
   onPress,
   onProfilePress,
   onLongPress,
 }: {
   chat: Chat;
-  color: any;
   onPress?: () => void;
   onProfilePress?: () => void;
   onLongPress?: () => void;
 }) {
+  const colorScheme = useColorScheme();
+  const color = Colors[colorScheme ?? "light"];
   return (
-    <TouchableOpacity style={styles.chatItem} onPress={onPress} onLongPress={onLongPress}>
+    <TouchableOpacity
+      style={styles.chatItem}
+      onPress={onPress}
+      onLongPress={onLongPress}
+    >
       <TouchableOpacity onPress={onProfilePress}>
-        <Image source={{ uri: chat.avatarUri }} style={styles.avatar} />
+        <Image
+          source={{
+            uri: chat.photo,
+          }}
+          style={styles.photo}
+        />
       </TouchableOpacity>
       <ThemedView style={styles.chatContent}>
         <ThemedView style={styles.chatTopRow}>
           <ThemedText type="defaultBold">{chat.name}</ThemedText>
           <ThemedText type="small" style={{ color: "#999" }}>
-            {chat.time}
+            {formatChatDate(chat.updatedAt)}
           </ThemedText>
         </ThemedView>
         <ThemedView style={styles.chatBottomRow}>
@@ -45,7 +56,7 @@ export default function ChatItem({
             ]}
             numberOfLines={1}
           >
-            {chat.lastMessage}
+            {chat.latestMessage}
           </ThemedText>
           {chat.unreadCount > 0 && (
             <ThemedView
@@ -66,7 +77,7 @@ const styles = StyleSheet.create({
     padding: 12,
     alignItems: "center",
   },
-  avatar: {
+  photo: {
     width: 54,
     height: 54,
     borderRadius: 27,

@@ -58,12 +58,12 @@ export default function FlashScreen() {
     router.push("/(setting)/edit-profile");
   };
 
-  const handleLove = (id: string) => {
+  const handleLove = (_id: string) => {
     if (!user) return;
     setUser((prev) => ({
       ...prev!,
       posts: prev!.posts.map((post) =>
-        post.id === id
+        post._id === _id
           ? {
               ...post,
               loved: !post.loved,
@@ -74,17 +74,17 @@ export default function FlashScreen() {
     }));
   };
 
-  const handleComment = (id: string) => {
-    Alert.alert("Comment", `Open comments for post: ${id}`);
+  const handleComment = (_id: string) => {
+    Alert.alert("Comment", `Open comments for post: ${_id}`);
   };
 
-  const handleShare = (id: string) => {
+  const handleShare = (_id: string) => {
     if (!user) return;
-    Alert.alert("Share", `Share post: ${id}`);
+    Alert.alert("Share", `Share post: ${_id}`);
     setUser((prev) => ({
       ...prev!,
       posts: prev!.posts.map((post) =>
-        post.id === id
+        post._id === _id
           ? { ...post, shareCount: (post.shareCount || 0) + 1 }
           : post
       ),
@@ -177,7 +177,7 @@ export default function FlashScreen() {
     <>
       <FlatList
         data={user.posts}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
           <PostCard
             post={item}

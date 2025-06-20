@@ -340,12 +340,12 @@ const EditProfile: React.FC = () => {
                   source={{ uri: profilePhoto }}
                   style={styles.profilePhoto}
                 />
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   style={styles.deleteIconProfile}
                   onPress={handleRemoveProfile}
                 >
                   <Ionicons name="trash-outline" size={24} color="red" />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </>
             ) : (
               <ThemedView
